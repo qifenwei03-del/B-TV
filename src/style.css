@@ -1,0 +1,392 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   B 區 感應光寓 · TV 主顯示 — 全域樣式
+   設計 token 與 F 區 / B 桌面投影 (vibenfc) 對齊,主色 teal #009393。
+   尺寸以大尺寸 TV 為前提,全用 clamp(vw/vh) 自適應。
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --accent:      #009393;
+  --accent-2:    #4dbaba;
+  --accent-deep: #006a6a;
+  --accent-glow: rgba(0, 147, 147, 0.30);
+
+  --c-bg:       #02090b;
+  --c-text:     #eef3f3;
+  --c-text-dim: #8aa2a2;
+
+  --good:  #4dbaba;
+  --warn:  #f59e0b;
+  --info:  #6f8ba0;
+  --down:  #f43f5e;
+
+  --font-cjk:     'Chiron Hei HK', 'Space Grotesk', sans-serif;
+  --font-display: 'Space Grotesk', 'Chiron Hei HK', sans-serif;
+  --font-hud:     'JetBrains Mono', monospace;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --scene-accent: var(--accent);  /* 場景 / loop 由 App 以 inline 覆寫 */
+  --dim-tint:     var(--accent);  /* 當前維度主色,由 Scene 覆寫 */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { width: 100%; height: 100%; }
+
+body {
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-cjk);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: none;            /* kiosk — 無指標 */
+}
+
+/* ── Stage ─────────────────────────────────────────────────────────────────── */
+.stage {
+  position: relative;
+  width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse 62% 62% at 50% 46%,
+      color-mix(in srgb, var(--scene-accent) 24%, transparent) 0%,
+      color-mix(in srgb, var(--scene-accent) 7%, transparent) 42%,
+      transparent 72%),
+    radial-gradient(ellipse 120% 100% at 50% 50%, transparent 46%, rgba(0,0,0,0.72) 100%),
+    var(--c-bg);
+  transition: background 0.8s var(--ease);
+}
+.stage__vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 30%, transparent 82%);
+}
+
+/* ── Screen layer ──────────────────────────────────────────────────────────── */
+.screen {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  padding: clamp(28px, 5vh, 80px);
+}
+
+/* ══ Idle ═══════════════════════════════════════════════════════════════════ */
+.idle { position: relative; display: grid; place-items: center; text-align: center; gap: clamp(8px, 1.6vh, 20px); }
+.idle__halo {
+  position: absolute; width: clamp(380px, 60vh, 720px); height: clamp(380px, 60vh, 720px);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 62%);
+  z-index: -1;
+}
+.idle__title {
+  font-family: var(--font-cjk); font-weight: 700;
+  font-size: clamp(56px, 12vh, 150px); letter-spacing: 0.14em;
+  text-shadow: 0 0 50px var(--accent-glow);
+}
+.idle__sub {
+  font-family: var(--font-hud); font-size: clamp(14px, 2vh, 24px);
+  letter-spacing: 0.55em; text-indent: 0.55em; color: var(--accent-2);
+}
+.idle__hint {
+  margin-top: clamp(16px, 3vh, 40px);
+  font-size: clamp(15px, 2.2vh, 26px); letter-spacing: 0.3em; text-indent: 0.3em;
+  color: var(--c-text-dim);
+}
+
+/* ══ Intro / Outro (AI 聲紋) ═══════════════════════════════════════════════════ */
+.intro, .outro {
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  gap: clamp(24px, 4vh, 56px); width: min(1100px, 88vw);
+}
+.intro__eyebrow, .outro__eyebrow {
+  font-family: var(--font-hud); font-size: clamp(13px, 1.7vh, 19px);
+  letter-spacing: 0.5em; text-indent: 0.5em; color: var(--accent-2);
+  text-transform: uppercase;
+}
+.intro__line {
+  font-size: clamp(22px, 3.6vh, 44px); font-weight: 500; line-height: 1.6;
+  letter-spacing: 0.04em; max-width: 24ch;
+  color: color-mix(in srgb, var(--accent) 16%, var(--c-text));
+}
+.intro__count {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(160px, 36vh, 420px); color: #fff;
+  text-shadow: 0 0 80px var(--accent);
+}
+.outro__line {
+  font-weight: 700; font-size: clamp(34px, 6vh, 76px); letter-spacing: 0.06em;
+  text-shadow: 0 0 40px var(--accent-glow);
+}
+.outro__sub {
+  font-size: clamp(16px, 2.4vh, 28px); letter-spacing: 0.16em; color: var(--c-text-dim);
+}
+
+/* ── Voiceprint ────────────────────────────────────────────────────────────── */
+.voiceprint {
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(3px, 0.5vw, 7px); height: clamp(120px, 22vh, 260px);
+  width: min(1000px, 84vw);
+}
+.voiceprint__bar {
+  flex: 1 1 0; min-width: 0; height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(to top,
+    color-mix(in srgb, var(--vp-accent) 30%, transparent),
+    var(--vp-accent));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--vp-accent) 50%, transparent);
+  transform-origin: center;
+}
+
+/* ══ Prompt (放置提示) ═══════════════════════════════════════════════════════ */
+.prompt {
+  position: relative; display: grid; place-items: center; text-align: center;
+}
+.prompt__eyebrow {
+  position: absolute; bottom: calc(100% + clamp(28px, 5vh, 64px));
+  left: 50%; transform: translateX(-50%); white-space: nowrap;
+  font-family: var(--font-hud); font-size: clamp(13px, 1.7vh, 20px);
+  letter-spacing: 0.44em; text-indent: 0.44em; color: var(--c-text-dim);
+  text-transform: uppercase;
+}
+.prompt__text {
+  position: absolute; top: calc(100% + clamp(32px, 5.5vh, 72px));
+  left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(10px, 1.6vh, 20px); width: max-content; max-width: 90vw;
+}
+.prompt__title {
+  font-weight: 700; font-size: clamp(32px, 5.2vh, 64px);
+  letter-spacing: 0.06em; line-height: 1.15;
+}
+.prompt__sub {
+  font-size: clamp(16px, 2.3vh, 28px); color: var(--c-text-dim);
+  letter-spacing: 0.04em; max-width: 32ch;
+}
+
+/* 角色提示(列表版,不用置中 ring 佈局)*/
+.prompt--character {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: clamp(20px, 3.4vh, 44px); width: min(1100px, 90vw);
+}
+.prompt__title--top { position: static; transform: none; }
+.prompt__sub--bottom { position: static; transform: none; }
+.prompt--character .prompt__eyebrow { position: static; transform: none; }
+
+.persona-list {
+  list-style: none; display: flex; flex-direction: column;
+  gap: clamp(10px, 1.5vh, 18px); width: 100%;
+}
+.persona-list__item {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+  gap: clamp(16px, 2.5vw, 36px);
+  padding: clamp(14px, 2vh, 24px) clamp(22px, 3vw, 40px);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--p-accent) 12%, rgba(255,255,255,0.02));
+  border: 1px solid color-mix(in srgb, var(--p-accent) 40%, transparent);
+  box-shadow: inset 0 0 30px color-mix(in srgb, var(--p-accent) 10%, transparent);
+}
+.persona-list__no {
+  font-family: var(--font-hud); font-size: clamp(16px, 2.4vh, 28px);
+  font-weight: 700; color: var(--p-accent);
+}
+.persona-list__q {
+  text-align: left; font-size: clamp(20px, 3vh, 38px); font-weight: 500;
+  letter-spacing: 0.03em;
+}
+.persona-list__name {
+  font-family: var(--font-display); font-size: clamp(14px, 1.9vh, 22px);
+  letter-spacing: 0.18em; color: color-mix(in srgb, var(--p-accent) 60%, var(--c-text));
+}
+
+/* ══ House info(房屋即時資訊)═══════════════════════════════════════════════ */
+.house { display: flex; flex-direction: column; align-items: center; gap: clamp(24px, 4vh, 52px); width: min(1280px, 92vw); }
+.house__head { text-align: center; display: grid; gap: clamp(8px, 1.2vh, 14px); }
+.house__eyebrow {
+  font-family: var(--font-hud); font-size: clamp(13px, 1.7vh, 19px);
+  letter-spacing: 0.42em; text-indent: 0.42em; color: var(--accent-2); text-transform: uppercase;
+}
+.house__title { font-weight: 700; font-size: clamp(30px, 4.6vh, 58px); letter-spacing: 0.04em; }
+.house__live {
+  display: inline-flex; align-items: center; gap: 10px; justify-self: center;
+  font-family: var(--font-hud); font-size: clamp(12px, 1.5vh, 17px);
+  letter-spacing: 0.24em; color: var(--good);
+}
+.house__livedot { width: 9px; height: 9px; border-radius: 50%; background: var(--good); box-shadow: 0 0 12px var(--good); animation: blink 1.4s var(--ease) infinite; }
+
+.house__grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: clamp(14px, 1.8vw, 26px); width: 100%;
+}
+.stat {
+  display: flex; flex-direction: column; gap: clamp(8px, 1.2vh, 14px);
+  padding: clamp(18px, 2.6vh, 32px) clamp(18px, 2vw, 30px);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-left: 4px solid var(--good);
+}
+.stat--warn { border-left-color: var(--warn); }
+.stat--info { border-left-color: var(--info); }
+.stat--good { border-left-color: var(--good); }
+.stat__icon { width: clamp(34px, 4.4vh, 52px); height: clamp(34px, 4.4vh, 52px); color: var(--accent-2); }
+.stat--warn .stat__icon { color: var(--warn); }
+.stat--info .stat__icon { color: var(--info); }
+.stat__icon svg { width: 100%; height: 100%; }
+.stat__label { font-size: clamp(14px, 1.9vh, 22px); color: var(--c-text-dim); letter-spacing: 0.04em; }
+.stat__value {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(34px, 5.4vh, 68px); line-height: 1; letter-spacing: 0.01em;
+}
+.stat__unit { font-family: var(--font-hud); font-size: clamp(13px, 1.7vh, 20px); font-weight: 500; color: var(--c-text-dim); margin-left: 6px; }
+.stat__text { font-family: var(--font-cjk); font-weight: 700; font-size: clamp(26px, 4vh, 46px); }
+
+/* ══ Scene(依序解方展演)══════════════════════════════════════════════════════ */
+.scene {
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(16px, 2.6vh, 36px); width: min(1300px, 94vw); height: 100%;
+  justify-content: center;
+}
+.scene__head { text-align: center; display: flex; flex-direction: column; gap: 4px; }
+.scene__persona { font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 4vh, 48px); letter-spacing: 0.1em; }
+.scene__persona-title { font-size: clamp(15px, 2vh, 24px); color: var(--c-text-dim); letter-spacing: 0.1em; }
+
+.scene__rail { display: flex; gap: clamp(10px, 1.6vw, 24px); }
+.rail__item {
+  display: flex; align-items: center; gap: 10px;
+  padding: clamp(8px, 1.2vh, 14px) clamp(14px, 1.6vw, 24px);
+  border-radius: 999px; border: 1px solid rgba(255,255,255,0.08);
+  color: var(--c-text-dim); transition: all 0.4s var(--ease);
+}
+.rail__idx { font-family: var(--font-hud); font-size: clamp(13px, 1.7vh, 20px); }
+.rail__label { font-size: clamp(14px, 1.9vh, 22px); letter-spacing: 0.06em; }
+.rail__item--active {
+  color: #fff; border-color: var(--rail-tint);
+  background: color-mix(in srgb, var(--rail-tint) 18%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--rail-tint) 35%, transparent);
+}
+.rail__item--active .rail__idx { color: var(--rail-tint); }
+.rail__item--done { color: color-mix(in srgb, var(--rail-tint) 70%, var(--c-text-dim)); border-color: color-mix(in srgb, var(--rail-tint) 30%, transparent); }
+
+.scene__stage { flex: 1 1 auto; width: 100%; display: grid; place-items: center; min-height: 0; }
+.dim {
+  display: grid; grid-template-columns: clamp(300px, 38vw, 520px) 1fr;
+  align-items: center; gap: clamp(30px, 5vw, 80px); width: 100%;
+}
+.dim__visual {
+  position: relative; aspect-ratio: 1; width: 100%; max-width: clamp(300px, 36vh, 480px);
+  justify-self: center; display: grid; place-items: center;
+}
+.dim__info { display: flex; flex-direction: column; gap: clamp(12px, 1.8vh, 22px); }
+.dim__tag {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-hud); font-size: clamp(13px, 1.7vh, 20px);
+  letter-spacing: 0.18em; color: var(--dim-tint); text-transform: uppercase;
+}
+.dim__tag-idx { font-size: 1.2em; }
+.dim__tag-icon { width: clamp(20px, 2.6vh, 30px); height: clamp(20px, 2.6vh, 30px); }
+.dim__headline { font-weight: 700; font-size: clamp(30px, 5vh, 62px); letter-spacing: 0.03em; line-height: 1.12; }
+.dim__detail { font-size: clamp(16px, 2.4vh, 28px); color: var(--c-text-dim); line-height: 1.55; max-width: 30ch; }
+.dim__metrics { display: flex; align-items: flex-end; gap: clamp(24px, 3vw, 48px); margin-top: clamp(8px, 1.4vh, 18px); flex-wrap: wrap; }
+.metric { display: flex; flex-direction: column; gap: 6px; }
+.metric__value { font-family: var(--font-display); font-weight: 700; font-size: clamp(36px, 6vh, 76px); line-height: 1; color: #fff; }
+.metric__unit { font-family: var(--font-hud); font-size: 0.4em; font-weight: 500; color: var(--c-text-dim); margin-left: 6px; }
+.metric__note { font-size: clamp(13px, 1.7vh, 19px); color: var(--c-text-dim); letter-spacing: 0.08em; }
+.dim__sound {
+  align-self: center;
+  font-family: var(--font-hud); font-size: clamp(15px, 2vh, 24px); letter-spacing: 0.1em;
+  padding: clamp(8px, 1.2vh, 14px) clamp(16px, 1.8vw, 26px); border-radius: 999px;
+  color: var(--dim-tint); border: 1px solid color-mix(in srgb, var(--dim-tint) 50%, transparent);
+  background: color-mix(in srgb, var(--dim-tint) 14%, transparent);
+}
+.scene__sync {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-hud); font-size: clamp(12px, 1.6vh, 18px);
+  letter-spacing: 0.16em; color: var(--c-text-dim);
+}
+.scene__sync-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dim-tint); box-shadow: 0 0 12px var(--dim-tint); animation: blink 1.2s var(--ease) infinite; }
+
+/* ── 維度視覺 ──────────────────────────────────────────────────────────────── */
+.viz { position: relative; width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; }
+
+/* ① 光照 */
+.viz-light__glow { position: absolute; width: 70%; height: 70%; border-radius: 50%; background: radial-gradient(circle, var(--dim-tint) 0%, transparent 65%); filter: blur(8px); }
+.viz-light__bulb { width: 34%; height: 34%; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fff 0%, var(--dim-tint) 60%, color-mix(in srgb, var(--dim-tint) 50%, #000) 100%); }
+.viz-light__ray { position: absolute; top: 50%; left: 50%; width: 4px; height: 46%; transform-origin: top center; translate: -50% 0; background: linear-gradient(to bottom, var(--dim-tint), transparent); border-radius: 999px; }
+
+/* ② 空氣 */
+.viz-air__fan { position: absolute; width: 42%; height: 42%; display: grid; place-items: center; opacity: 0.5; }
+.viz-air__blade { position: absolute; width: 50%; height: 16%; border-radius: 999px; background: color-mix(in srgb, var(--dim-tint) 60%, transparent); transform-origin: left center; left: 50%; }
+.viz-air__particle { position: absolute; bottom: 0; border-radius: 50%; background: var(--dim-tint); box-shadow: 0 0 12px var(--dim-tint); }
+
+/* ③ 溫濕度 */
+.viz-temp { gap: 0; }
+.viz-temp__thermo { position: relative; width: 14%; height: 64%; border-radius: 999px; border: 3px solid color-mix(in srgb, var(--dim-tint) 60%, transparent); display: flex; align-items: flex-end; padding: 6px; }
+.viz-temp__mercury { width: 100%; border-radius: 999px; background: linear-gradient(to top, var(--dim-tint), color-mix(in srgb, var(--dim-tint) 50%, #fff)); box-shadow: 0 0 20px var(--dim-tint); }
+.viz-temp__bulb { position: absolute; bottom: -8%; left: 50%; translate: -50% 0; width: 220%; aspect-ratio: 1; border-radius: 50%; background: var(--dim-tint); box-shadow: 0 0 24px var(--dim-tint); }
+.viz-temp__drops { position: absolute; inset: 0; }
+.viz-temp__drop { position: absolute; top: 0; width: 10px; height: 16px; border-radius: 0 50% 50% 50%; rotate: 45deg; background: color-mix(in srgb, var(--dim-tint) 70%, #fff); box-shadow: 0 0 10px var(--dim-tint); }
+
+/* ④ 聲音 */
+.viz-sound__eq { display: flex; align-items: center; justify-content: center; gap: clamp(4px, 0.8vw, 10px); width: 86%; height: 60%; }
+.viz-sound__bar { flex: 1; height: 100%; border-radius: 999px; transform-origin: center; background: linear-gradient(to top, color-mix(in srgb, var(--dim-tint) 30%, transparent), var(--dim-tint)); box-shadow: 0 0 12px color-mix(in srgb, var(--dim-tint) 50%, transparent); }
+.viz-sound__label { position: absolute; bottom: 4%; font-family: var(--font-hud); font-size: clamp(15px, 2.2vh, 28px); letter-spacing: 0.16em; color: var(--dim-tint); }
+
+/* ══ Loop(情境體驗中)═══════════════════════════════════════════════════════ */
+.loop { position: relative; display: grid; place-items: center; text-align: center; gap: clamp(12px, 1.8vh, 22px); }
+.loop__status { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-hud); font-size: clamp(13px, 1.7vh, 20px); letter-spacing: 0.3em; color: color-mix(in srgb, var(--scene-accent) 70%, #fff); }
+.loop__dot { width: 9px; height: 9px; border-radius: 50%; background: var(--scene-accent); box-shadow: 0 0 12px var(--scene-accent); animation: blink 1.4s var(--ease) infinite; }
+.loop__name { font-family: var(--font-display); font-weight: 600; font-size: clamp(24px, 3.6vh, 42px); letter-spacing: 0.08em; color: #fff; }
+.loop__title { font-weight: 700; font-size: clamp(28px, 4.6vh, 54px); letter-spacing: 0.06em; }
+.loop__line { font-size: clamp(16px, 2.2vh, 26px); letter-spacing: 0.03em; }
+.loop__summary { display: flex; gap: clamp(12px, 1.6vw, 24px); margin-top: clamp(10px, 1.6vh, 20px); flex-wrap: wrap; justify-content: center; }
+.loop__chip {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: clamp(12px, 1.8vh, 20px) clamp(16px, 2vw, 28px); border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--chip-tint) 36%, transparent);
+  background: color-mix(in srgb, var(--chip-tint) 10%, transparent);
+  min-width: clamp(120px, 14vw, 180px);
+}
+.loop__chip-icon { width: clamp(26px, 3.2vh, 40px); height: clamp(26px, 3.2vh, 40px); color: var(--chip-tint); }
+.loop__chip-label { font-size: clamp(13px, 1.7vh, 20px); color: var(--c-text-dim); letter-spacing: 0.1em; }
+.loop__chip-val { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 3vh, 34px); }
+.loop__chip-val i { font-family: var(--font-hud); font-style: normal; font-size: 0.5em; color: var(--c-text-dim); margin-left: 4px; }
+.loop__hint { margin-top: clamp(10px, 1.6vh, 20px); font-family: var(--font-hud); font-size: clamp(13px, 1.7vh, 20px); letter-spacing: 0.2em; color: var(--c-text-dim); }
+
+/* ── Sensor ring(感應目標)──────────────────────────────────────────────────── */
+.sensor { --d: clamp(240px, 36vh, 400px); position: relative; width: var(--d); height: var(--d); display: grid; place-items: center; }
+.sensor > * { grid-area: 1 / 1; }
+.sensor__pulse { width: var(--d); height: var(--d); border-radius: 50%; border: 2px solid var(--ring-accent, var(--accent)); opacity: 0; animation: sensor-pulse 2.6s ease-out infinite; }
+.sensor__pulse:nth-of-type(2) { animation-delay: 0.86s; }
+.sensor__pulse:nth-of-type(3) { animation-delay: 1.72s; }
+@keyframes sensor-pulse { 0% { transform: scale(0.55); opacity: 0.55; } 100% { transform: scale(1.5); opacity: 0; } }
+.sensor__ring { border-radius: 50%; border: 1.5px solid color-mix(in srgb, var(--ring-accent, var(--accent)) 55%, transparent); }
+.sensor__ring--outer { width: var(--d); height: var(--d); box-shadow: 0 0 60px color-mix(in srgb, var(--ring-accent, var(--accent)) 30%, transparent), inset 0 0 50px color-mix(in srgb, var(--ring-accent, var(--accent)) 14%, transparent); }
+.sensor__ring--inner { width: calc(var(--d) * 0.6); height: calc(var(--d) * 0.6); border-color: color-mix(in srgb, var(--ring-accent, var(--accent)) 75%, transparent); }
+.sensor__sweep { width: calc(var(--d) * 0.92); height: calc(var(--d) * 0.92); border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg, color-mix(in srgb, var(--ring-accent, var(--accent)) 42%, transparent) 60deg, transparent 120deg, transparent 360deg); mask: radial-gradient(circle, transparent 38%, #000 39%, #000 49%, transparent 50%); -webkit-mask: radial-gradient(circle, transparent 38%, #000 39%, #000 49%, transparent 50%); animation: sensor-sweep 4s linear infinite; }
+@keyframes sensor-sweep { to { transform: rotate(360deg); } }
+.sensor__core { width: calc(var(--d) * 0.6); height: calc(var(--d) * 0.6); border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--ring-accent, var(--accent)) 22%, transparent) 0%, transparent 70%); }
+.sensor__icon { width: calc(var(--d) * 0.3); height: calc(var(--d) * 0.3); color: color-mix(in srgb, var(--ring-accent, var(--accent)) 50%, #fff); display: grid; place-items: center; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--ring-accent, var(--accent)) 60%, transparent)); }
+.prompt__glyph { width: 100%; height: 100%; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+/* ── Confirm ripple ────────────────────────────────────────────────────────── */
+.confirm { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 5; }
+.confirm__ring { position: absolute; width: clamp(240px, 36vh, 400px); height: clamp(240px, 36vh, 400px); border-radius: 50%; border: 2.5px solid var(--confirm-accent); box-shadow: 0 0 40px var(--confirm-accent); opacity: 0; animation: confirm-ring 1s ease-out forwards; }
+.confirm__ring--2 { animation-delay: 0.12s; }
+@keyframes confirm-ring { 0% { transform: scale(0.4); opacity: 0.8; } 100% { transform: scale(1.8); opacity: 0; } }
+.confirm__check { position: absolute; width: clamp(80px, 12vh, 130px); height: clamp(80px, 12vh, 130px); color: var(--confirm-accent); filter: drop-shadow(0 0 16px var(--confirm-accent)); transform: scale(0); animation: confirm-check 1.4s ease-out forwards; }
+.confirm__check svg { width: 100%; height: 100%; }
+@keyframes confirm-check { 0% { transform: scale(0); opacity: 0; } 25% { transform: scale(1.15); opacity: 1; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+
+/* ── Ops status dot ────────────────────────────────────────────────────────── */
+.statusdot { position: absolute; bottom: 20px; right: 24px; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-hud); font-size: 12px; letter-spacing: 0.16em; color: var(--c-text-dim); opacity: 0.5; z-index: 10; }
+.statusdot__led { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.statusdot__phase { opacity: 0.6; padding-left: 8px; border-left: 1px solid currentColor; }
+.statusdot--live { color: var(--accent-2); }
+.statusdot--idle { color: var(--warn); }
+.statusdot--down { color: var(--down); }
+.statusdot--live .statusdot__led { box-shadow: 0 0 8px currentColor; }

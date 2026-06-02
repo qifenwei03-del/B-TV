@@ -1,0 +1,122 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   Bento 動態資料牆 — 情境展演(房屋即時資訊 + 5 情境解方)
+   參考 reference GIF:飽和平塗色塊 + 巨大 Helvetica 數字 + 數字 count-up + 圖表描繪
+   + 整牆滑入重組。只有「房子」那格是 three.js;其餘 DOM/SVG(文字最銳利)。
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.bento {
+  --b-orange: #ff5a2c;
+  --b-purple: #a274f0;
+  --b-coral:  #f6566e;
+  --b-green:  #25c06b;
+  --b-yellow: #ffd60a;
+  --b-sky:    #8fd0f5;
+  --b-cream:  #f3f0e9;
+  --b-ink:    #14171c;
+
+  --b-num: 'Helvetica Neue', 'Arial', 'Space Grotesk', sans-serif;
+
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: clamp(8px, 1vw, 16px);
+  padding: clamp(10px, 1.4vw, 22px);
+  background: var(--b-ink);
+}
+
+/* ── 磚 ────────────────────────────────────────────────────────────────────── */
+.tile {
+  position: relative; overflow: hidden;
+  border-radius: clamp(10px, 1vw, 18px);
+  padding: clamp(14px, 1.6vw, 28px);
+  display: flex; flex-direction: column;
+  color: var(--b-ink);
+}
+.tile--flush { padding: 0; }
+.tile--orange { background: var(--b-orange); color: #1a0a00; }
+.tile--purple { background: var(--b-purple); color: #14071f; }
+.tile--coral  { background: var(--b-coral);  color: #1f0610; }
+.tile--green  { background: var(--b-green);  color: #03210f; }
+.tile--yellow { background: var(--b-yellow); color: #1c1700; }
+.tile--sky    { background: var(--b-sky);    color: #061a26; }
+.tile--cream  { background: var(--b-cream);  color: var(--b-ink); }
+.tile--ink    { background: #0c0f13;         color: var(--b-cream); }
+
+.tile--active { box-shadow: 0 0 0 3px rgba(255,255,255,0.85), 0 0 36px rgba(255,255,255,0.25); z-index: 2; }
+
+/* ── 大數字 / 文案 ─────────────────────────────────────────────────────────── */
+.t-eyebrow { font-family: var(--b-num); font-size: clamp(11px, 1.1vw, 16px); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.66; }
+.t-num {
+  font-family: var(--b-num); font-weight: 700; line-height: 0.92;
+  font-size: clamp(40px, 7vw, 132px); letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.t-num--sm { font-size: clamp(28px, 4vw, 68px); }
+.t-unit { font-size: 0.32em; font-weight: 700; letter-spacing: 0; opacity: 0.7; }
+.t-label { font-family: var(--b-num); font-size: clamp(13px, 1.3vw, 22px); font-weight: 500; line-height: 1.25; }
+.t-label--lg { font-size: clamp(18px, 2.2vw, 40px); font-weight: 600; }
+.t-spacer { flex: 1; }
+.t-foot { font-family: var(--b-num); font-size: clamp(11px, 1.05vw, 16px); font-weight: 500; opacity: 0.66; }
+.t-row { display: flex; align-items: baseline; gap: 0.5ch; }
+.t-icon { width: clamp(22px, 2.4vw, 40px); height: clamp(22px, 2.4vw, 40px); }
+
+/* 角標(維度序號 ①②③④)*/
+.t-badge {
+  position: absolute; top: clamp(10px, 1vw, 18px); right: clamp(12px, 1.1vw, 20px);
+  font-family: var(--b-num); font-weight: 700; font-size: clamp(16px, 1.8vw, 30px); opacity: 0.5;
+}
+
+/* 搜尋列文字(GIF 裡打字進去的小框)*/
+.t-search {
+  margin-top: auto; align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.92); color: #14171c;
+  border-radius: 999px; padding: 6px 14px;
+  font-family: var(--b-num); font-size: clamp(11px, 1.05vw, 16px); font-weight: 500;
+  max-width: 100%;
+}
+.t-search svg { width: 14px; height: 14px; flex: none; }
+
+/* ── 房子 canvas 格 ────────────────────────────────────────────────────────── */
+.house-tile { position: relative; }
+.house-canvas { position: absolute; inset: 0; }
+.house-tile__cap {
+  position: absolute; left: clamp(12px, 1.2vw, 20px); bottom: clamp(10px, 1vw, 18px);
+  font-family: var(--b-num); font-weight: 700; letter-spacing: 0.02em; z-index: 1;
+  color: #fff; text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+}
+.house-tile__cap b { display: block; font-size: clamp(16px, 1.8vw, 30px); }
+.house-tile__cap span { font-size: clamp(11px, 1vw, 15px); opacity: 0.8; letter-spacing: 0.12em; text-transform: uppercase; }
+.house-tile__badge {
+  position: absolute; top: clamp(12px, 1.1vw, 20px); right: clamp(12px, 1.1vw, 20px); z-index: 1;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--b-num); font-size: clamp(10px, 1vw, 14px); font-weight: 700; letter-spacing: 0.14em;
+  color: #fff; text-transform: uppercase; opacity: 0.85;
+}
+.house-tile__badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px #fff; }
+
+/* ── 折線/面積圖 ───────────────────────────────────────────────────────────── */
+.chart { display: flex; flex-direction: column; height: 100%; gap: 8px; }
+.chart__title { font-family: var(--b-num); font-size: clamp(12px, 1.2vw, 18px); font-weight: 600; }
+.chart__svg { flex: 1; width: 100%; height: 100%; }
+.chart__grid { stroke: rgba(0,0,0,0.12); stroke-width: 1; }
+
+/* ── 甜甜圈 ────────────────────────────────────────────────────────────────── */
+.donut { display: flex; align-items: center; gap: clamp(10px, 1.2vw, 22px); height: 100%; }
+.donut__svg { height: 100%; max-height: clamp(110px, 16vh, 200px); aspect-ratio: 1; flex: none; }
+.donut__track { fill: none; stroke: rgba(0,0,0,0.08); stroke-width: 16; }
+.donut__c-top { text-anchor: middle; font-family: var(--b-num); font-weight: 700; font-size: 22px; fill: var(--b-ink); }
+.donut__c-sub { text-anchor: middle; font-family: var(--b-num); font-size: 9px; fill: var(--b-ink); opacity: 0.6; }
+.donut__legend { list-style: none; display: flex; flex-direction: column; gap: 6px; font-family: var(--b-num); font-size: clamp(11px, 1.05vw, 16px); }
+.donut__legend li { display: flex; align-items: center; gap: 8px; }
+.donut__sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+
+/* ── 聲音 EQ 條(bento 版)──────────────────────────────────────────────────── */
+.bento-eq { display: flex; align-items: flex-end; gap: clamp(3px, 0.5vw, 8px); flex: 1; min-height: 0; }
+.bento-eq span { flex: 1; border-radius: 999px 999px 0 0; transform-origin: bottom; }
+
+/* 進度點(4 維度)*/
+.dim-dots { display: flex; gap: 8px; margin-top: auto; }
+.dim-dots i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; opacity: 0.28; transition: opacity 0.3s, transform 0.3s; }
+.dim-dots i.on { opacity: 1; transform: scale(1.25); }
