@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import BentoTile from './BentoTile.jsx'
 import CountUp from './CountUp.jsx'
 import HouseCanvas from './HouseCanvas.jsx'
 import LineChartTile from './LineChartTile.jsx'
 import DonutTile from './DonutTile.jsx'
-import Icon from '../components/icons.jsx'
 import { DIMENSION_ORDER, DIMENSION_META, SCENES } from '../scenes.js'
 
 // 情境解方 bento 牆 — 5 情境共用版面,資料由 persona 驅動。
-// mode='play':依序點亮 4 維度(光照→空氣→溫濕度→聲音),同步把 dimKey 餵給 HouseCanvas
-//   讓房子燈光隨維度變化;走完 onComplete()(→ App 的 loop)。
-// mode='settled'(loop):全部呈現、房子維持情境基礎燈光,提示換下一個情境。
-const DIM_MS = 3800
+//
+// ▍數字:每張卡「出現時」count-up 一次到定位,之後鎖住不再跳(卡片元件為穩定型別,
+//   不會因 re-render 重掛而重數)。
+// ▍卡片輪替:固定錨點(主角 / 房子 / 趨勢圖 / 甜甜圈)之外,有 6 個小格 + 1 個大格
+//   會像 reference GIF 那樣,每隔幾秒從卡池抽下一張、以遮罩滑動換卡(新卡數字才 count-up)。
+// ▍房子燈光:仍依 4 維度(光照→空氣→溫濕度→聲音)輪一次驅動 three.js 房子變光,
+//   走完 onComplete()(→ App 的 loop);輪替動畫在 play / loop 都持續。
+const DIM_MS    = 3800   // 房子燈光每維度停留
+const ROTATE_MS = 4200   // 卡片輪替間隔
 
 const isNum = (v) => /^[\d.]+$/.test(String(v))
 const dec = (v) => (String(v).includes('.') ? 1 : 0)
@@ -25,12 +29,99 @@ const TREND = {
   pregnancy:    [0.45, 0.5, 0.55, 0.6, 0.66, 0.72, 0.8, 0.88],
   nomad:        [0.38, 0.46, 0.5, 0.57, 0.64, 0.69, 0.77, 0.84],
 }
-const SCORE = { 'anti-aging': 94, child: 92, elder: 88, pregnancy: 96, nomad: 90 }
+const SCORE   = { 'anti-aging': 94, child: 92, elder: 88, pregnancy: 96, nomad: 90 }
+const SAVE    = { 'anti-aging': 26, child: 22, elder: 20, pregnancy: 24, nomad: 30 }
+const COMFORT = { 'anti-aging': 95, child: 93, elder: 90, pregnancy: 97, nomad: 92 }
+
+const DIM_COLOR = { light: 'yellow', air: 'green', temp: 'sky', sound: 'purple' }
+const DIM_BADGE = { light: '①', air: '②', temp: '③', sound: '④' }
+
+// ── 卡池(輪替用)──────────────────────────────────────────────────────────────
+// 小卡(1×1):數字 / 短資訊。注意:輪替格內不放無限動畫(避免 exit 卡死)。
+function buildStatPool(persona, data) {
+  const cards = []
+  for (const k of DIMENSION_ORDER) {
+    const meta = DIMENSION_META[k]
+    const m0 = data[k].metrics[0]
+    cards.push({ key: `${k}-0`, color: DIM_COLOR[k], badge: DIM_BADGE[k], eyebrow: meta.label, value: m0.value, unit: m0.unit, foot: data[k].headline })
+    const m1 = data[k].metrics[1]
+    if (m1) cards.push({ key: `${k}-1`, color: k === 'light' ? 'orange' : 'cream', eyebrow: `${meta.label} · ${m1.note}`, value: m1.value, unit: m1.unit, foot: meta.en })
+  }
+  cards.push({ key: 'score',   color: 'coral', eyebrow: '全健築指數', value: SCORE[persona.id]   || 90, unit: '/100', foot: 'WELL Building Standard' })
+  cards.push({ key: 'save',    color: 'green', eyebrow: '預估節能',   value: SAVE[persona.id]    || 25, unit: '%',    foot: '對比一般住宅' })
+  cards.push({ key: 'comfort', color: 'sky',   eyebrow: '體感舒適',   value: COMFORT[persona.id] || 94, unit: '%',    foot: '入住回饋' })
+  cards.push({ key: 'well',    color: 'cream', eyebrow: 'WELL 認證',  value: 5, unit: '維達標', foot: '空氣 / 水 / 光 / 熱 / 聲' })
+  return cards
+}
+
+// 大卡(2×2):解方標語(文字)。
+function buildFeaturePool(persona, data) {
+  return [
+    { key: 'sol',     accent: persona.accent, eyebrow: '你的痛點 · 寶舖有解方', text: persona.line },
+    { key: 'f-light', accent: DIMENSION_META.light.tint, eyebrow: '① 光照解方',   text: data.light.headline },
+    { key: 'f-air',   accent: DIMENSION_META.air.tint,   eyebrow: '② 空氣解方',   text: data.air.headline },
+    { key: 'f-temp',  accent: DIMENSION_META.temp.tint,  eyebrow: '③ 溫濕度解方', text: data.temp.headline },
+    { key: 'f-sound', accent: DIMENSION_META.sound.tint, eyebrow: '④ 聲音解方',   text: data.sound.headline },
+  ]
+}
+
+// 小卡內容(穩定型別 → 只在「換卡掛載」時 count-up 一次,之後鎖住)
+function StatFace({ card, delay = 0 }) {
+  return (
+    <motion.div
+      className={`tile tile--${card.color} card-face`}
+      initial={{ opacity: 0, y: '45%' }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: '-45%' }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {card.badge && <span className="t-badge">{card.badge}</span>}
+      <span className="t-eyebrow">{card.eyebrow}</span>
+      <span className="t-spacer" />
+      <span className="t-num t-num--sm">
+        {isNum(card.value) ? <CountUp value={card.value} decimals={dec(card.value)} /> : card.value}
+        <span className="t-unit"> {card.unit}</span>
+      </span>
+      {card.foot && <p className="t-foot">{card.foot}</p>}
+    </motion.div>
+  )
+}
+
+function FeatureFace({ card, delay = 0 }) {
+  return (
+    <motion.div
+      className="tile tile--ink card-face"
+      initial={{ opacity: 0, y: '30%' }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: '-30%' }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <span className="t-eyebrow" style={{ color: card.accent }}>{card.eyebrow}</span>
+      <span className="t-spacer" />
+      <p className="t-label--lg t-label" style={{ color: '#fff' }}>{card.text}</p>
+    </motion.div>
+  )
+}
+
+// 輪替格:固定 grid 位置,內容每 tick 換下一張卡(遮罩滑動)。
+function RotatingSlot({ pool, index, tick, area, big = false }) {
+  const card = pool[(tick + index) % pool.length]
+  const Face = big ? FeatureFace : StatFace
+  return (
+    <div className="slot" style={{ gridColumn: area.gc, gridRow: area.gr }}>
+      <AnimatePresence>
+        <Face key={card.key} card={card} delay={(index % 4) * 0.07} />
+      </AnimatePresence>
+    </div>
+  )
+}
 
 export default function SceneBento({ persona, mode = 'play', onComplete }) {
-  const [step, setStep] = useState(mode === 'play' ? 0 : -1)
   const data = SCENES[persona.id]
+  const [step, setStep] = useState(mode === 'play' ? 0 : -1)
+  const [tick, setTick] = useState(0)
 
+  // 房子燈光:依序輪 4 維度;play 走完 → onComplete(→ loop)
   useEffect(() => {
     if (mode !== 'play') { setStep(-1); return }
     setStep(0)
@@ -47,52 +138,39 @@ export default function SceneBento({ persona, mode = 'play', onComplete }) {
     return () => clearInterval(id)
   }, [persona.id, mode, onComplete])
 
-  const activeDim = step >= 0 ? DIMENSION_ORDER[step] : null
-  const m = (k) => DIMENSION_META[k]
-  const dimMetric = (k) => data[k].metrics[0]
+  // 卡片輪替(play / loop 都持續)
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), ROTATE_MS)
+    return () => clearInterval(id)
+  }, [persona.id])
 
-  const wellSegments = DIMENSION_ORDER.map((k) => ({ value: 1, color: m(k).tint, label: m(k).label }))
+  const activeDim = step >= 0 ? DIMENSION_ORDER[step] : null
+  const statPool = buildStatPool(persona, data)
+  const featurePool = buildFeaturePool(persona, data)
+
+  const wellSegments = DIMENSION_ORDER
+    .map((k) => ({ value: 1, color: DIMENSION_META[k].tint, label: DIMENSION_META[k].label }))
     .concat([{ value: 1, color: persona.accent, label: '整體' }])
 
-  // 大數字磚:把 metric 轉成 count-up 或純文字
-  const Num = ({ k, cls = '' }) => {
-    const mt = dimMetric(k)
-    return (
-      <span className={`t-num ${cls}`}>
-        {isNum(mt.value) ? <CountUp value={mt.value} decimals={dec(mt.value)} /> : mt.value}
-        <span className="t-unit"> {mt.unit}</span>
-      </span>
-    )
-  }
+  // 6 個小卡輪替格的位置
+  const STAT_SLOTS = [
+    { gc: '3 / 4', gr: '1 / 2' }, { gc: '4 / 5', gr: '1 / 2' },
+    { gc: '1 / 2', gr: '2 / 3' }, { gc: '2 / 3', gr: '2 / 3' },
+    { gc: '3 / 4', gr: '2 / 3' }, { gc: '4 / 5', gr: '2 / 3' },
+  ]
 
   return (
     <div className="bento">
-      {/* 情境主角 hero */}
-      <BentoTile color="cream" delay={0} style={{ gridColumn: '1 / 3', gridRow: '1 / 2' }}>
+      {/* ── 錨點:情境主角 ── */}
+      <BentoTile color="cream" style={{ gridColumn: '1 / 3', gridRow: '1 / 2' }}>
         <p className="t-eyebrow" style={{ color: persona.accent }}>情境 · {persona.name}</p>
         <span className="t-spacer" />
         <p className="t-label--lg t-label">{persona.prompt}</p>
         <p className="t-foot">{persona.title}</p>
       </BentoTile>
 
-      {/* ① 光照 */}
-      <BentoTile color="yellow" delay={0.05} active={activeDim === 'light'} style={{ gridColumn: '3 / 4', gridRow: '1 / 2' }}>
-        <span className="t-badge">①</span>
-        <Num k="light" cls="t-num--sm" />
-        <span className="t-spacer" />
-        <p className="t-label">{m('light').label} · {data.light.headline}</p>
-      </BentoTile>
-
-      {/* ② 空氣 */}
-      <BentoTile color="green" delay={0.1} active={activeDim === 'air'} style={{ gridColumn: '4 / 5', gridRow: '1 / 2' }}>
-        <span className="t-badge">②</span>
-        <Num k="air" cls="t-num--sm" />
-        <span className="t-spacer" />
-        <p className="t-label">{m('air').label} · PM2.5</p>
-      </BentoTile>
-
-      {/* 房子 3D（唯一 three.js）— 對應 reference 右上人臉那格 */}
-      <BentoTile color="ink" flush delay={0.15} className="house-tile" style={{ gridColumn: '5 / 7', gridRow: '1 / 3' }}>
+      {/* ── 錨點:房子 3D（唯一 three.js,燈光隨維度變化）── */}
+      <BentoTile color="ink" flush className="house-tile" style={{ gridColumn: '5 / 7', gridRow: '1 / 3' }}>
         <span className="house-tile__badge">3D · 自動旋轉</span>
         <HouseCanvas persona={persona} dimKey={activeDim} />
         <div className="house-tile__cap">
@@ -101,77 +179,24 @@ export default function SceneBento({ persona, mode = 'play', onComplete }) {
         </div>
       </BentoTile>
 
-      {/* ③ 溫濕度 */}
-      <BentoTile color="sky" delay={0.2} active={activeDim === 'temp'} style={{ gridColumn: '1 / 2', gridRow: '2 / 3' }}>
-        <span className="t-badge">③</span>
-        <Num k="temp" cls="t-num--sm" />
-        <span className="t-spacer" />
-        <p className="t-label">{m('temp').label}</p>
-      </BentoTile>
+      {/* ── 輪替:6 個小卡 ── */}
+      {STAT_SLOTS.map((area, i) => (
+        <RotatingSlot key={i} pool={statPool} index={i} tick={tick} area={area} />
+      ))}
 
-      {/* ④ 聲音 EQ */}
-      <BentoTile color="purple" delay={0.25} active={activeDim === 'sound'} style={{ gridColumn: '2 / 4', gridRow: '2 / 3' }}>
-        <span className="t-badge">④</span>
-        <div className="t-row" style={{ alignItems: 'baseline' }}>
-          <span className="t-num t-num--sm"><CountUp value={dimMetric('sound').value} /><span className="t-unit"> {dimMetric('sound').unit}</span></span>
-        </div>
-        <Eq active={activeDim === 'sound' || mode !== 'play'} />
-        <p className="t-foot">{m('sound').label} · {data.sound.sound}</p>
-      </BentoTile>
-
-      {/* 全健築指數(大數字宣言)*/}
-      <BentoTile color="coral" delay={0.3} style={{ gridColumn: '4 / 5', gridRow: '2 / 3' }}>
-        <p className="t-eyebrow">全健築指數</p>
-        <span className="t-spacer" />
-        <span className="t-num t-num--sm"><CountUp value={SCORE[persona.id] || 90} /><span className="t-unit">/100</span></span>
-      </BentoTile>
-
-      {/* 健康趨勢 線圖 */}
-      <BentoTile color="cream" delay={0.35} style={{ gridColumn: '1 / 4', gridRow: '3 / 5' }}>
+      {/* ── 錨點:健康趨勢 線圖 ── */}
+      <BentoTile color="cream" style={{ gridColumn: '1 / 3', gridRow: '3 / 5' }}>
         <LineChartTile values={TREND[persona.id] || TREND['anti-aging']} title="健康趨勢 · 入住後 30 天" accent={persona.accent} />
       </BentoTile>
 
-      {/* WELL 五維 甜甜圈 */}
-      <BentoTile color="cream" delay={0.4} style={{ gridColumn: '4 / 5', gridRow: '3 / 5' }}>
+      {/* ── 錨點:WELL 五維 甜甜圈 ── */}
+      <BentoTile color="cream" style={{ gridColumn: '3 / 5', gridRow: '3 / 5' }}>
         <p className="t-eyebrow">WELL 五維</p>
         <DonutTile segments={wellSegments} centerTop="WELL" centerSub="balanced" />
       </BentoTile>
 
-      {/* 解方宣言 + 進度 */}
-      <BentoTile color="ink" delay={0.45} style={{ gridColumn: '5 / 7', gridRow: '3 / 5' }}>
-        <p className="t-eyebrow" style={{ color: persona.accent }}>你的痛點 · 寶舖有解方</p>
-        <span className="t-spacer" />
-        <p className="t-label--lg t-label" style={{ color: '#fff' }}>{persona.line}</p>
-        <span className="t-spacer" />
-        <div className="dim-dots" style={{ color: persona.accent }}>
-          {DIMENSION_ORDER.map((k, i) => <i key={k} className={mode !== 'play' || i <= step ? 'on' : ''} />)}
-        </div>
-        <p className="t-foot" style={{ color: 'rgba(255,255,255,0.6)', marginTop: 8 }}>
-          {mode === 'play' ? '環境同步中 · 燈光 / 空氣 / 溫濕度 / 聲音' : '拿起鑰匙圈，換下一個情境'}
-        </p>
-      </BentoTile>
-    </div>
-  )
-}
-
-// 聲音 EQ 條(bento 版)
-function Eq({ active }) {
-  const N = 16
-  return (
-    <div className="bento-eq">
-      {Array.from({ length: N }, (_, i) => {
-        const env = 0.3 + Math.sin((i / (N - 1)) * Math.PI) * 0.7
-        return (
-          <motion.span
-            key={i}
-            style={{ background: 'currentColor', height: '100%' }}
-            animate={active
-              ? { scaleY: [env * 0.3, env, env * 0.5, env * 0.85, env * 0.3] }
-              : { scaleY: 0.2 }}
-            transition={active ? { duration: 0.8 + (i % 5) * 0.12, delay: (i % 6) * 0.06, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
-          />
-        )
-      })}
+      {/* ── 輪替:大卡(解方標語)── */}
+      <RotatingSlot pool={featurePool} index={0} tick={tick} area={{ gc: '5 / 7', gr: '3 / 5' }} big />
     </div>
   )
 }

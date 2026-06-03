@@ -45,6 +45,10 @@
 
 .tile--active { box-shadow: 0 0 0 3px rgba(255,255,255,0.85), 0 0 36px rgba(255,255,255,0.25); z-index: 2; }
 
+/* 輪替格:固定位置 + 遮罩,讓卡片在格內滑動換頁(GIF 換卡效果)*/
+.bento .slot { position: relative; overflow: hidden; border-radius: clamp(10px, 1vw, 18px); }
+.bento .card-face { position: absolute; inset: 0; }
+
 /* ── 大數字 / 文案 ─────────────────────────────────────────────────────────── */
 .t-eyebrow { font-family: var(--b-num); font-size: clamp(11px, 1.1vw, 16px); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.66; }
 .t-num {
