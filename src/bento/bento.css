@@ -4,7 +4,7 @@
    + 整牆滑入重組。只有「房子」那格是 three.js;其餘 DOM/SVG(文字最銳利)。
    ══════════════════════════════════════════════════════════════════════════════ */
 
-.bento {
+.bento, .scene-cols {
   --b-orange: #ff5a2c;
   --b-purple: #a274f0;
   --b-coral:  #f6566e;
@@ -17,13 +17,26 @@
   --b-num: 'Helvetica Neue', 'Arial', 'Space Grotesk', sans-serif;
 
   position: absolute; inset: 0;
+  background: var(--b-ink);
+  padding: clamp(10px, 1.4vw, 22px);
+}
+.bento {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: repeat(4, 1fr);
   gap: clamp(8px, 1vw, 16px);
-  padding: clamp(10px, 1.4vw, 22px);
-  background: var(--b-ink);
 }
+
+/* ── 情境牆:3 欄垂直捲軸(一次動一欄,整欄往上捲)──────────────────────────── */
+.scene-cols { display: flex; gap: clamp(8px, 1vw, 16px); }
+.scene-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: clamp(8px, 1vw, 16px); }
+.scene-col--r { flex: 1.25 1 0; }
+.col-anchor { flex: 0 0 auto; }
+.col-anchor--hero  { flex: 0 0 22%; }
+.col-anchor--house { flex: 0 0 58%; position: relative; }
+.reel { flex: 1 1 auto; position: relative; overflow: hidden; border-radius: clamp(10px, 1vw, 18px); min-height: 0; }
+.reel-page { position: absolute; inset: 0; display: flex; flex-direction: column; gap: clamp(8px, 1vw, 16px); }
+.col-card { flex: 1 1 0; min-height: 0; overflow: hidden; }
 
 /* ── 磚 ────────────────────────────────────────────────────────────────────── */
 .tile {
