@@ -47,7 +47,6 @@ export default function HouseInfoBento() {
 
       {/* 房子 3D（中性燈光，尚未選情境）*/}
       <BentoTile color="ink" flush className="house-tile" style={{ gridColumn: '5 / 7', gridRow: '1 / 3' }} delay={0.15}>
-        <span className="house-tile__badge">3D · 自動旋轉</span>
         <HouseCanvas persona={null} dimKey={null} />
         <div className="house-tile__cap"><b>你的未來居家</b><span>BIM × 數位孿生</span></div>
       </BentoTile>

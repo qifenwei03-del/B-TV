@@ -55,10 +55,18 @@ function Co2(p)    { return (<svg {...S} {...p}><circle cx="24" cy="24" r="15"/>
 function Humid(p)  { return (<svg {...S} {...p}><path d="M24 8 c7 9 11 14 11 20 a11 11 0 0 1 -22 0 c0-6 4-11 11-20z"/></svg>) }
 function Weather(p){ return (<svg {...S} {...p}><circle cx="20" cy="20" r="6"/><path d="M20 8 v3 M20 29 v3 M8 20 h3 M29 20 h3 M11 11 l2 2 M27 27 l2 2 M29 11 l-2 2 M13 27 l-2 2"/><path d="M22 38 a6 6 0 0 1 0 -12 a8 8 0 0 1 15 2 a5 5 0 0 1 -1 10z" opacity="0.55"/></svg>) }
 
+// 額外圖標(數據卡用)
+function Bolt(p)   { return (<svg {...S} {...p}><path d="M26 5 L12 27 h9 l-2 16 14 -22 h-9 z"/></svg>) }
+function Heart(p)  { return (<svg {...S} {...p}><path d="M24 40 C9 30 9 16 18 15 c4 -0.5 6 2 6 4 c0 -2 2 -4.5 6 -4 c9 1 9 15 -6 25z"/></svg>) }
+function Shield(p) { return (<svg {...S} {...p}><path d="M24 6 l15 6 v11 c0 10 -7 16 -15 19 c-8 -3 -15 -9 -15 -19 V12 z"/><path d="M18 23 l4 4 8 -9"/></svg>) }
+function Gauge(p)  { return (<svg {...S} {...p}><path d="M9 35 a16 16 0 1 1 30 0"/><path d="M24 33 l8 -10"/><circle cx="24" cy="33" r="2.5" fill="currentColor" stroke="none"/></svg>) }
+function Leaf(p)   { return (<svg {...S} {...p}><path d="M14 34 C14 18 30 11 39 11 C39 28 27 37 14 34 z"/><path d="M14 35 C19 30 25 26 33 22"/></svg>) }
+
 const MAP = {
   light: Light, air: Air, temp: Temp, sound: Sound,
   cloud: Cloud, co2: Co2, humid: Humid, weather: Weather,
   card: CardIcon, keyring: KeyringIcon, nfc: NfcWaves, check: CheckIcon,
+  bolt: Bolt, heart: Heart, shield: Shield, gauge: Gauge, leaf: Leaf,
 }
 
 export default function Icon({ name, ...p }) {

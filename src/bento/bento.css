@@ -11,6 +11,10 @@
   --b-green:  #25c06b;
   --b-yellow: #ffd60a;
   --b-sky:    #8fd0f5;
+  --b-pink:   #ff77c8;
+  --b-indigo: #6d8bf5;
+  --b-teal:   #2fcfc0;
+  --b-lime:   #bfe34a;
   --b-cream:  #f3f0e9;
   --b-ink:    #14171c;
 
@@ -28,15 +32,62 @@
 }
 
 /* ── 情境牆:3 欄垂直捲軸(一次動一欄,整欄往上捲)──────────────────────────── */
-.scene-cols { display: flex; gap: clamp(8px, 1vw, 16px); }
-.scene-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: clamp(8px, 1vw, 16px); }
-.scene-col--r { flex: 1.25 1 0; }
+.scene-cols { display: flex; gap: clamp(10px, 1.1vw, 18px); }
+.scene-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: clamp(10px, 1.1vw, 18px); }
+.scene-col--m { flex: 1.15 1 0; }
+.scene-col--r { flex: 1.2 1 0; }
 .col-anchor { flex: 0 0 auto; }
-.col-anchor--hero  { flex: 0 0 22%; }
-.col-anchor--house { flex: 0 0 58%; position: relative; }
+.col-anchor--hero  { flex: 0 0 24%; }
+.col-anchor--house { flex: 0 0 50%; position: relative; }
+.hero__q { font-weight: 700; letter-spacing: 0.01em; line-height: 1.25; font-size: clamp(26px, 3.3vw, 58px); }
 .reel { flex: 1 1 auto; position: relative; overflow: hidden; border-radius: clamp(10px, 1vw, 18px); min-height: 0; }
-.reel-page { position: absolute; inset: 0; display: flex; flex-direction: column; gap: clamp(8px, 1vw, 16px); }
-.col-card { flex: 1 1 0; min-height: 0; overflow: hidden; }
+.reel-page { position: absolute; inset: 0; display: flex; flex-direction: column; gap: clamp(10px, 1.1vw, 18px); }
+.col-card { flex: 1 1 0; min-height: 0; overflow: hidden; padding: clamp(10px, 1.2vw, 20px); }
+
+/* 數據卡:大數字 + icon */
+.stat__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.stat__ico { width: clamp(36px, 4vw, 68px); height: clamp(36px, 4vw, 68px); opacity: 0.82; flex: none; }
+.stat__ico svg { width: 100%; height: 100%; }
+.stat__num { font-family: var(--b-num); font-weight: 700; line-height: 0.84; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; font-size: clamp(50px, 8vw, 156px); white-space: nowrap; }
+.stat__num--long { font-size: clamp(30px, 4.6vw, 92px); }
+.stat__unit { font-size: 0.3em; font-weight: 700; letter-spacing: 0; opacity: 0.66; }
+
+/* 維度視覺化卡 — 底色用 palette(每張不同)、資料用維度色 --dv(有顏色)、
+   軌道/標籤用 currentColor 自動適應(深底→淺、淺底→深)。 */
+.viz__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.viz__ico { width: clamp(36px, 3.8vw, 68px); height: clamp(36px, 3.8vw, 68px); flex: none; opacity: 0.8; color: currentColor; }
+.viz__ico svg { width: 100%; height: 100%; }
+.viz__body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: clamp(10px, 1.4vh, 20px); }
+.viz__labels { display: flex; justify-content: space-between; font-family: var(--b-num); font-size: clamp(14px, 1.5vw, 24px); color: color-mix(in srgb, currentColor 55%, transparent); }
+.viz__hi { color: var(--dv); }
+/* 色溫漸層(固定光譜)*/
+.swatch__bar { height: clamp(40px, 7vh, 100px); border-radius: 12px; background: linear-gradient(90deg, #ff9d4d, #ffd9a0, #fff6e8, #e6efff, #a9c8ff); }
+/* 對比長條 */
+.cbars { display: flex; flex-direction: column; gap: clamp(14px, 2vh, 28px); width: 100%; }
+.cbar { display: grid; grid-template-columns: 4.8em 1fr auto; gap: 14px; align-items: center; }
+.cbar__label { font-family: var(--b-num); font-size: clamp(16px, 1.7vw, 28px); white-space: nowrap; color: color-mix(in srgb, currentColor 70%, transparent); }
+.cbar__track { height: clamp(18px, 2.6vh, 34px); background: color-mix(in srgb, currentColor 16%, transparent); border-radius: 999px; overflow: hidden; }
+.cbar__fill { height: 100%; min-width: 10px; border-radius: 999px; background: color-mix(in srgb, currentColor 38%, transparent); }
+.cbar__fill--hi { background: currentColor; }
+.cbar__val { font-family: var(--b-num); font-weight: 700; font-size: clamp(24px, 2.8vw, 48px); }
+/* 舒適區間 */
+.range__value { font-family: var(--b-num); font-weight: 700; text-align: center; font-size: clamp(30px, 3.6vw, 60px); }
+.range__value small { font-size: 0.42em; opacity: 0.7; }
+.range__track { position: relative; height: clamp(20px, 3vh, 36px); background: color-mix(in srgb, currentColor 16%, transparent); border-radius: 999px; }
+.range__zone { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: color-mix(in srgb, #1f8f55 80%, transparent); }
+.range__mark { position: absolute; top: -6px; bottom: -6px; width: 6px; border-radius: 3px; background: currentColor; box-shadow: 0 0 8px color-mix(in srgb, currentColor 50%, transparent); transform: translateX(-50%); }
+/* 靜態波形 */
+.wave { display: flex; align-items: center; gap: clamp(4px, 0.6vw, 9px); height: clamp(60px, 10vh, 150px); width: 100%; }
+.wave span { flex: 1; align-self: center; border-radius: 999px; background: color-mix(in srgb, currentColor 80%, transparent); }
+
+/* 解方長句論述卡 */
+.narr { color: var(--b-cream); }
+.narr__tag { display: flex; align-items: center; gap: 10px; }
+.narr__ico { width: clamp(32px, 3.2vw, 58px); height: clamp(32px, 3.2vw, 58px); flex: none; }
+.narr__ico svg { width: 100%; height: 100%; }
+.narr__body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+.narr__head { font-weight: 700; color: currentColor; letter-spacing: 0.02em; line-height: 1.16; font-size: clamp(30px, 4.1vw, 66px); }
+.narr__detail { margin-top: 0.5em; color: color-mix(in srgb, currentColor 72%, transparent); line-height: 1.55; font-size: clamp(18px, 1.95vw, 38px); }
 
 /* ── 磚 ────────────────────────────────────────────────────────────────────── */
 .tile {
@@ -45,6 +96,7 @@
   padding: clamp(14px, 1.6vw, 28px);
   display: flex; flex-direction: column;
   color: var(--b-ink);
+  transition: background-color 0.6s var(--ease, ease), color 0.6s var(--ease, ease);
 }
 .tile--flush { padding: 0; }
 .tile--orange { background: var(--b-orange); color: #1a0a00; }
@@ -53,6 +105,10 @@
 .tile--green  { background: var(--b-green);  color: #03210f; }
 .tile--yellow { background: var(--b-yellow); color: #1c1700; }
 .tile--sky    { background: var(--b-sky);    color: #061a26; }
+.tile--pink   { background: var(--b-pink);   color: #2a0719; }
+.tile--indigo { background: var(--b-indigo); color: #05122e; }
+.tile--teal   { background: var(--b-teal);   color: #03211f; }
+.tile--lime   { background: var(--b-lime);   color: #16210a; }
 .tile--cream  { background: var(--b-cream);  color: var(--b-ink); }
 .tile--ink    { background: #0c0f13;         color: var(--b-cream); }
 
@@ -63,18 +119,18 @@
 .bento .card-face { position: absolute; inset: 0; }
 
 /* ── 大數字 / 文案 ─────────────────────────────────────────────────────────── */
-.t-eyebrow { font-family: var(--b-num); font-size: clamp(11px, 1.1vw, 16px); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.66; }
+.t-eyebrow { font-family: var(--b-num); font-size: clamp(14px, 1.55vw, 26px); font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.7; }
 .t-num {
-  font-family: var(--b-num); font-weight: 700; line-height: 0.92;
-  font-size: clamp(40px, 7vw, 132px); letter-spacing: -0.03em;
+  font-family: var(--b-num); font-weight: 700; line-height: 0.9;
+  font-size: clamp(48px, 8vw, 156px); letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
-.t-num--sm { font-size: clamp(28px, 4vw, 68px); }
+.t-num--sm { font-size: clamp(34px, 5vw, 84px); }
 .t-unit { font-size: 0.32em; font-weight: 700; letter-spacing: 0; opacity: 0.7; }
-.t-label { font-family: var(--b-num); font-size: clamp(13px, 1.3vw, 22px); font-weight: 500; line-height: 1.25; }
-.t-label--lg { font-size: clamp(18px, 2.2vw, 40px); font-weight: 600; }
+.t-label { font-family: var(--b-num); font-size: clamp(15px, 1.5vw, 26px); font-weight: 500; line-height: 1.3; }
+.t-label--lg { font-size: clamp(22px, 2.8vw, 48px); font-weight: 600; }
 .t-spacer { flex: 1; }
-.t-foot { font-family: var(--b-num); font-size: clamp(11px, 1.05vw, 16px); font-weight: 500; opacity: 0.66; }
+.t-foot { font-family: var(--b-num); font-size: clamp(13px, 1.4vw, 24px); font-weight: 500; opacity: 0.68; }
 .t-row { display: flex; align-items: baseline; gap: 0.5ch; }
 .t-icon { width: clamp(22px, 2.4vw, 40px); height: clamp(22px, 2.4vw, 40px); }
 

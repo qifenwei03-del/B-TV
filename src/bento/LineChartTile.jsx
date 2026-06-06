@@ -2,7 +2,9 @@ import { motion } from 'framer-motion'
 
 // 面積/折線圖磚 — 線條 left→right 描繪 + 面積淡入,呼應 GIF「Access to work from home」。
 // values:0–1 的 y 陣列(底→頂)。
-export default function LineChartTile({ values = [], title, accent = '#111418' }) {
+// 線/面積用 currentColor 繪製 → 自動適應卡片底色(深色字底→深線),不再吃固定 accent。
+export default function LineChartTile({ values = [], title }) {
+  const accent = 'currentColor'
   const W = 320, H = 150, pad = 6
   const n = values.length
   const x = (i) => pad + (i / (n - 1)) * (W - pad * 2)

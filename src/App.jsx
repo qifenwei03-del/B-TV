@@ -17,11 +17,8 @@ import './bento/bento.css'
 // ── 畫面節奏(ms)──────────────────────────────────────────────────────────────
 // 前言 / 房屋資訊 / 結語為「導覽人員操控 + 自動續播」雙保險:展務員可手動 advance,
 // 不操作則於下列時間自動推進,避免現場卡住。
-const INTRO_MS = 11000   // 開場 + 倒數 3-2-1
-const HOUSE_MS = 11000   // 房屋即時資訊閱讀時間 → 自動轉「請選角色」
-const OUTRO_MS = 9000    // 結語
+const OUTRO_MS = 9000    // 結語播放時間,之後自動回待機
 const CONFIRM_MS = 1800
-const IDLE_RESET_MS = 90000  // 體驗中無任何 NFC 活動逾時 → 自動播結語、回待機(換下一位)
 
 const initial = {
   phase:       'idle',   // idle | intro | card | house | character | scene | loop | outro
@@ -47,18 +44,20 @@ function reducer(state, a) {
       const seq  = state.seq + 1
       const activity = state.activity + 1
       if (kind === 'card') {
-        // 邀請卡 = 開場觸發:待機 → 自動播前言(→ 房屋資訊)。
-        // 已在體驗中再刷卡不打斷;單一感應點下卡只會在開頭刷一次。
-        const start = ['idle', 'card'].includes(state.phase)
+        // 邀請卡 = 直接顯示房屋即時資訊(停著等選角色,不自動續播)。
+        // 任何階段刷卡都回到 house = 新訪客重新開始。前言/結語改由展務員(按鍵/server)觸發。
         return {
           ...state, cardScanned: true, onReader: 'card',
-          phase: start ? 'intro' : state.phase,
-          character: start ? null : state.character,
+          phase: 'house', character: null,
           confirm: { kind: 'card', id: 'invite', seq }, seq, activity,
         }
       }
       if (kind === 'character' && PERSONAS[a.data.id]) {
-        // 角色鑰匙圈:任何時候刷上 → 進入該情境解方動畫(可從 loop 直接換角色)
+        // 同一個角色已在播放中(scene/loop)→ 視為 reader 重複讀取,忽略,不重置場景/節奏。
+        if (state.character === a.data.id && (state.phase === 'scene' || state.phase === 'loop')) {
+          return { ...state, onReader: 'character' }
+        }
+        // 換角色(或從其他階段)→ 進入該情境,重置場景節奏
         return {
           ...state, cardScanned: true, character: a.data.id, onReader: 'character',
           phase: 'scene', sceneRun: state.sceneRun + 1,
@@ -76,29 +75,21 @@ function reducer(state, a) {
     case 'confirm-clear':
       return state.confirm?.seq === a.seq ? { ...state, confirm: null } : state
 
-    // ── 自動續播 / 流程控制 ─────────────────────────────────────────────────────
-    case 'op-intro':   // 開始體驗:待機 → 前言(server override / 鍵盤測試)
+    // ── 展務員 / 流程控制(前言・結語・下一步・重置:皆手動或 server 觸發,不自動續播)──
+    case 'op-intro':   // 待機 → 前言(展務員 / server)
       return { ...initial, wsStatus: state.wsStatus, connected: state.connected, phase: 'intro' }
-    case 'intro-done': // 前言播完 → 房屋即時資訊
-      return state.phase === 'intro' ? { ...state, phase: 'house' } : state
-    case 'house-done': // 房屋資訊看完 → 提示選角色
-      return state.phase === 'house' ? { ...state, phase: 'character' } : state
-    case 'op-advance':
+    case 'op-advance': // 下一步(展務員 n):前言→房屋資訊→選角色
       if (state.phase === 'intro') return { ...state, phase: 'house' }
       if (state.phase === 'house') return { ...state, phase: 'character' }
       return state
     case 'scene-done':
       return state.phase === 'scene' ? { ...state, phase: 'loop' } : state
-    case 'op-outro':
+    case 'op-outro':   // 播結語(展務員 / server),OUTRO_MS 後自動回待機
       return { ...state, phase: 'outro', onReader: null }
     case 'outro-done':
       return state.phase === 'outro'
         ? { ...initial, wsStatus: state.wsStatus, connected: state.connected }
         : state
-    case 'auto-end':
-      // 無人活動逾時:已體驗過(house 之後)→ 播結語收尾;否則直接回待機。
-      if (['idle', 'intro', 'outro'].includes(state.phase)) return state
-      return { ...state, phase: 'outro', onReader: null }
     case 'op-reset':
       return { ...initial, wsStatus: state.wsStatus, connected: state.connected }
 
@@ -125,21 +116,10 @@ export default function App() {
   const onStatus = useCallback((status) => dispatch({ type: 'ws-status', status }), [])
   const { send } = useNfcSocket(onMessage, onStatus)
 
-  // ── 自動續播計時器(前言 / 房屋資訊 / 結語)────────────────────────────────────
+  // ── 結語播完自動回待機(結語為展務員觸發;前言/房屋資訊不自動續播、無無人逾時)──────
   useEffect(() => {
-    if (s.phase === 'intro') { const t = setTimeout(() => dispatch({ type: 'intro-done' }), INTRO_MS); return () => clearTimeout(t) }
-    if (s.phase === 'house') { const t = setTimeout(() => dispatch({ type: 'house-done' }), HOUSE_MS); return () => clearTimeout(t) }
     if (s.phase === 'outro') { const t = setTimeout(() => dispatch({ type: 'outro-done' }), OUTRO_MS); return () => clearTimeout(t) }
   }, [s.phase])
-
-  // ── 無人活動逾時 → 自動收尾(全 NFC 驅動,現場不需在電視端操作)──────────────
-  //   體驗中(house/character/scene/loop)若 IDLE_RESET_MS 內沒有任何刷卡 / 拿起,
-  //   視為訪客離開 → 播結語 → 回待機等下一位。每次 NFC 事件(activity)重置倒數。
-  useEffect(() => {
-    if (['idle', 'intro', 'outro'].includes(s.phase)) return
-    const t = setTimeout(() => dispatch({ type: 'auto-end' }), IDLE_RESET_MS)
-    return () => clearTimeout(t)
-  }, [s.phase, s.activity])
 
   // ── 感應成功漣漪自動消失 ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -183,9 +163,11 @@ export default function App() {
       {/* 不用 AnimatePresence:待機 / 前言 / 聲音 EQ 等畫面含 repeat:Infinity 動畫,
           會讓 AnimatePresence 的 exit 永遠不 settle → 卡在舊畫面(SensorRing 註解的雷)。
           改成單一 keyed 畫面 + 進場淡入;key 變即由 React 直接換掉(kiosk 切換俐落、不卡)。
-          scene/loop 共用 key 讓 three.js 房子不重載。 */}
+          scene/loop 共用「固定」key:換角色時 SceneBento(及裡面的 three.js 房子)不 remount
+          → 房子不重新初始化(免 clone/PMREM/raycast 卡頓),只更新 persona prop 平滑換燈;
+            進場動畫改由 SceneBento 內各卡片以 persona.id 為 key 重掛載播放。 */}
       <motion.div
-        key={(s.phase === 'scene' || s.phase === 'loop') ? `scene-${s.sceneRun}` : s.phase}
+        key={(s.phase === 'scene' || s.phase === 'loop') ? 'scene' : s.phase}
         className="screen"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

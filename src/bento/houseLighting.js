@@ -8,23 +8,26 @@ import * as THREE from 'three'
 // 欄位:key(主光色/強度)、accent(情境主色點光)、ambient、bg(畫布底色)、
 //       fill(補光強度)、emissive(窗戶自發光強度 0-1)。
 
+// 全部收斂成「舒服暖白、柔和、高補光」的範圍;各情境只做極輕微的冷暖/明暗區別,
+// 不再有強烈藍/粉色光去汙染米白素模。
+// 主光強、環境光低 → 明暗對比明顯、有立體感;顏色仍保持舒服暖白,各情境只微調冷暖
 const PRESET = {
-  'anti-aging': { keyColor: 0xcfe2ff, keyInt: 2.2, ambient: 0.45, fill: 0.6, emissive: 0.35, bg: 0x0d1626 }, // 晝夜節律 · 冷白晝光
-  child:        { keyColor: 0xffffff, keyInt: 2.6, ambient: 0.65, fill: 0.8, emissive: 0.30, bg: 0x0c1c14 }, // 全光譜 · 明亮中性
-  elder:        { keyColor: 0xffd9a0, keyInt: 2.4, ambient: 0.5,  fill: 0.6, emissive: 0.5,  bg: 0x1c1408 }, // 高照度暖白
-  pregnancy:    { keyColor: 0xffcbe0, keyInt: 1.5, ambient: 0.4,  fill: 0.45, emissive: 0.4, bg: 0x1c0d16 }, // 柔和無頻閃暖光 · 偏暗
-  nomad:        { keyColor: 0xdff0ff, keyInt: 2.5, ambient: 0.5,  fill: 0.7, emissive: 0.3,  bg: 0x0a1820 }, // 專注日光白
+  'anti-aging': { keyColor: 0xfdf2e2, keyInt: 2.7, ambient: 0.38, fill: 0.32, emissive: 0.2, bg: 0x14161c }, // 中性偏暖
+  child:        { keyColor: 0xfff8ef, keyInt: 2.9, ambient: 0.42, fill: 0.34, emissive: 0.2, bg: 0x14161c }, // 明亮中性
+  elder:        { keyColor: 0xffedd2, keyInt: 2.7, ambient: 0.38, fill: 0.32, emissive: 0.2, bg: 0x14161c }, // 暖白
+  pregnancy:    { keyColor: 0xfdebd6, keyInt: 2.45, ambient: 0.36, fill: 0.3, emissive: 0.2, bg: 0x14161c }, // 柔和暖
+  nomad:        { keyColor: 0xf1f5fb, keyInt: 2.9, ambient: 0.4,  fill: 0.34, emissive: 0.2, bg: 0x14161c }, // 微涼日光
 }
 
-// 當前維度對基礎預設的微調(乘 / 加)。
+// 當前維度的微調(很輕,維持舒服)。
 const DIM_MOD = {
-  light: { keyMul: 1.25, emissiveAdd: 0.25, ambientMul: 1.15 },  // 光照展演:整體提亮
-  air:   { keyTint: 0xbfe9ff, keyMul: 1.0 },                      // 空氣:微冷
-  temp:  { keyTint: 0xffd2a8, keyMul: 1.0 },                      // 溫濕度:微暖
-  sound: { keyMul: 1.0, pulse: true },                            // 聲音:脈動(在 canvas 內以時間調變)
+  light: { keyMul: 1.12, ambientMul: 1.08 },  // 光照展演:略提亮
+  air:   { keyTint: 0xeef4fb, keyMul: 1.0 },   // 空氣:極微冷
+  temp:  { keyTint: 0xfff0e0, keyMul: 1.0 },   // 溫濕度:極微暖
+  sound: { keyMul: 1.0, pulse: true },         // 聲音:輕脈動
 }
 
-const FALLBACK = { keyColor: 0xffffff, keyInt: 2.2, ambient: 0.5, fill: 0.6, emissive: 0.3, bg: 0x0a1416 }
+const FALLBACK = { keyColor: 0xfdf2e2, keyInt: 2.7, ambient: 0.38, fill: 0.32, emissive: 0.2, bg: 0x14161c }
 
 // 回傳該 persona + dimension 的 target 燈光物件(色用 THREE.Color)。
 export function lightingTarget(personaId, dimKey, accentHex) {
@@ -38,7 +41,7 @@ export function lightingTarget(personaId, dimKey, accentHex) {
     keyColor,
     keyInt:    base.keyInt * (mod?.keyMul ?? 1),
     accent,
-    accentInt: 1.4,
+    accentInt: 0.4,   // 情境色點光收很弱,只輕點氣氛,不汙染米白
     ambient:   base.ambient * (mod?.ambientMul ?? 1),
     fill:      base.fill,
     emissive:  Math.min(1, base.emissive + (mod?.emissiveAdd ?? 0)),

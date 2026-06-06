@@ -6,3 +6,9 @@ dist-ssr
 .vite
 
 _gifframes
+
+# 大型客戶素材(本機放 public/,不入 git;見 public/README.md)
+public/*.glb
+public/*.gltf
+public/voice/*.mp3
+public/voice/*.wav
