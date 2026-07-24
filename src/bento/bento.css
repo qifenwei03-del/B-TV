@@ -5,23 +5,32 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 
 .bento, .scene-cols {
-  --b-orange: #ff5a2c;
-  --b-purple: #a274f0;
-  --b-coral:  #f6566e;
-  --b-green:  #25c06b;
-  --b-yellow: #ffd60a;
-  --b-sky:    #8fd0f5;
-  --b-pink:   #ff77c8;
-  --b-indigo: #6d8bf5;
-  --b-teal:   #2fcfc0;
-  --b-lime:   #bfe34a;
-  --b-cream:  #f3f0e9;
-  --b-ink:    #14171c;
+  /* ── 藍白玻璃調色盤 ──────────────────────────────────────────────────────────
+     原本是飽和平塗色塊;改為「藍白系」的細緻色相變化 —— 每個色名仍存在(JS 動態
+     輪轉不用改),但全部落在淺藍/白玻璃家族,深藍字都讀得清楚,整牆乾淨未來感。 */
+  --b-orange: #e4ecff;   /* 淺藍 */
+  --b-purple: #e7e7ff;   /* 淺長春花 */
+  --b-coral:  #dbe8ff;   /* 淺天青 */
+  --b-green:  #d9eefb;   /* 淺水藍 */
+  --b-yellow: #eef3ff;   /* 近白冷調 */
+  --b-sky:    #d0e4ff;   /* 天藍 */
+  --b-pink:   #eaedff;   /* 淺藍紫 */
+  --b-indigo: #ccdbfb;   /* 中淺藍 */
+  --b-teal:   #d4f0fb;   /* 淺湖藍 */
+  --b-lime:   #e1f0ff;   /* 淺藍 */
+  --b-cream:  #f5f9ff;   /* 冷白(焦點磚)*/
+  --b-ink:    #0b1e40;   /* 深藍玻璃(較深的錨點磚)*/
+  --b-navy:   #12233f;   /* 淺磚上的主文字色(深藍)*/
+  --b-text:   #e9f1ff;   /* 深藍磚上的文字色(淺)*/
+  --b-accent: #2f7bff;   /* 電光藍(重點/高值)*/
 
-  --b-num: 'Helvetica Neue', 'Arial', 'Space Grotesk', sans-serif;
+  --b-num: 'TASA Orbiter', 'GlowSans TC', 'Helvetica Neue', 'Arial', sans-serif;
 
   position: absolute; inset: 0;
-  background: var(--b-ink);
+  /* 資料牆:純深藍(帶淡淡頂光)*/
+  background:
+    radial-gradient(120% 90% at 50% 4%, rgba(120,165,255,0.12) 0%, rgba(120,165,255,0) 44%),
+    radial-gradient(130% 110% at 50% 40%, #12285a 0%, #0c1d44 44%, #081633 72%, #050e22 100%);
   padding: clamp(10px, 1.4vw, 22px);
 }
 .bento {
@@ -60,8 +69,8 @@
 .viz__body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: clamp(10px, 1.4vh, 20px); }
 .viz__labels { display: flex; justify-content: space-between; font-family: var(--b-num); font-size: clamp(14px, 1.5vw, 24px); color: color-mix(in srgb, currentColor 55%, transparent); }
 .viz__hi { color: var(--dv); }
-/* 色溫漸層(固定光譜)*/
-.swatch__bar { height: clamp(40px, 7vh, 100px); border-radius: 12px; background: linear-gradient(90deg, #ff9d4d, #ffd9a0, #fff6e8, #e6efff, #a9c8ff); }
+/* 色溫漸層(藍白光譜,呼應整體調性)*/
+.swatch__bar { height: clamp(40px, 7vh, 100px); border-radius: 12px; background: linear-gradient(90deg, #eaf3ff, #cfe4ff, #9cc2ff, #5b93ff, #2f7bff); }
 /* 對比長條 */
 .cbars { display: flex; flex-direction: column; gap: clamp(14px, 2vh, 28px); width: 100%; }
 .cbar { display: grid; grid-template-columns: 4.8em 1fr auto; gap: 14px; align-items: center; }
@@ -74,14 +83,14 @@
 .range__value { font-family: var(--b-num); font-weight: 700; text-align: center; font-size: clamp(30px, 3.6vw, 60px); }
 .range__value small { font-size: 0.42em; opacity: 0.7; }
 .range__track { position: relative; height: clamp(20px, 3vh, 36px); background: color-mix(in srgb, currentColor 16%, transparent); border-radius: 999px; }
-.range__zone { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: color-mix(in srgb, #1f8f55 80%, transparent); }
+.range__zone { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: color-mix(in srgb, var(--b-accent) 72%, transparent); }
 .range__mark { position: absolute; top: -6px; bottom: -6px; width: 6px; border-radius: 3px; background: currentColor; box-shadow: 0 0 8px color-mix(in srgb, currentColor 50%, transparent); transform: translateX(-50%); }
 /* 靜態波形 */
 .wave { display: flex; align-items: center; gap: clamp(4px, 0.6vw, 9px); height: clamp(60px, 10vh, 150px); width: 100%; }
 .wave span { flex: 1; align-self: center; border-radius: 999px; background: color-mix(in srgb, currentColor 80%, transparent); }
 
 /* 解方長句論述卡 */
-.narr { color: var(--b-cream); }
+.narr { color: var(--b-navy); }
 .narr__tag { display: flex; align-items: center; gap: 10px; }
 .narr__ico { width: clamp(32px, 3.2vw, 58px); height: clamp(32px, 3.2vw, 58px); flex: none; }
 .narr__ico svg { width: 100%; height: 100%; }
@@ -92,27 +101,60 @@
 /* ── 磚 ────────────────────────────────────────────────────────────────────── */
 .tile {
   position: relative; overflow: hidden;
-  border-radius: clamp(10px, 1vw, 18px);
+  border-radius: clamp(12px, 1.1vw, 20px);
   padding: clamp(14px, 1.6vw, 28px);
   display: flex; flex-direction: column;
-  color: var(--b-ink);
+  color: var(--b-navy);
+  /* 淺色玻璃:白玻璃 + 微藍色調,讓底下天空色透出一點 → 通透玻璃感 */
+  background:
+    linear-gradient(150deg, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.56) 55%, rgba(236,244,255,0.62) 100%),
+    color-mix(in srgb, var(--b-tint, var(--b-sky)) 55%, #ffffff);
+  border: 1px solid rgba(255,255,255,0.9);
+  /* 左上反光(內亮邊 + 柔光)+ 右下陰影(內暗邊 + 外投影)*/
+  box-shadow:
+    inset 1.5px 1.5px 0 rgba(255,255,255,0.95),
+    inset -1.5px -1.5px 0 rgba(70,105,165,0.16),
+    12px 16px 30px rgba(35,72,140,0.16),
+    -6px -6px 18px rgba(255,255,255,0.5);
   transition: background-color 0.6s var(--ease, ease), color 0.6s var(--ease, ease);
 }
+/* 左上角玻璃反光高光 */
+.tile::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background:
+    radial-gradient(130% 120% at 0% 0%, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0) 38%),
+    linear-gradient(155deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0) 20%);
+}
 .tile--flush { padding: 0; }
-.tile--orange { background: var(--b-orange); color: #1a0a00; }
-.tile--purple { background: var(--b-purple); color: #14071f; }
-.tile--coral  { background: var(--b-coral);  color: #1f0610; }
-.tile--green  { background: var(--b-green);  color: #03210f; }
-.tile--yellow { background: var(--b-yellow); color: #1c1700; }
-.tile--sky    { background: var(--b-sky);    color: #061a26; }
-.tile--pink   { background: var(--b-pink);   color: #2a0719; }
-.tile--indigo { background: var(--b-indigo); color: #05122e; }
-.tile--teal   { background: var(--b-teal);   color: #03211f; }
-.tile--lime   { background: var(--b-lime);   color: #16210a; }
-.tile--cream  { background: var(--b-cream);  color: var(--b-ink); }
-.tile--ink    { background: #0c0f13;         color: var(--b-cream); }
+.tile--orange { --b-tint: var(--b-orange); }
+.tile--purple { --b-tint: var(--b-purple); }
+.tile--coral  { --b-tint: var(--b-coral); }
+.tile--green  { --b-tint: var(--b-green); }
+.tile--yellow { --b-tint: var(--b-yellow); }
+.tile--sky    { --b-tint: var(--b-sky); }
+.tile--pink   { --b-tint: var(--b-pink); }
+.tile--indigo { --b-tint: var(--b-indigo); }
+.tile--teal   { --b-tint: var(--b-teal); }
+.tile--lime   { --b-tint: var(--b-lime); }
+.tile--cream  { --b-tint: var(--b-cream); }
+/* 最深藍玻璃磚:更實心的深藍(牆面視覺錨點),同樣左上反光 + 右下陰影 */
+.tile--ink {
+  color: var(--b-text);
+  background: linear-gradient(150deg, rgba(30,62,116,0.72) 0%, rgba(9,22,48,0.82) 60%, rgba(6,15,36,0.9) 100%), #081a3a;
+  border-color: rgba(130,170,255,0.20);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgba(170,200,255,0.22),
+    inset -1.5px -1.5px 0 rgba(3,9,22,0.5),
+    16px 20px 40px rgba(2,7,20,0.5),
+    -6px -6px 20px rgba(120,160,255,0.05);
+}
+.tile--ink::before {
+  background:
+    radial-gradient(130% 120% at 0% 0%, rgba(160,195,255,0.20) 0%, rgba(160,195,255,0) 42%),
+    linear-gradient(155deg, rgba(190,215,255,0.08) 0%, rgba(255,255,255,0) 24%);
+}
 
-.tile--active { box-shadow: 0 0 0 3px rgba(255,255,255,0.85), 0 0 36px rgba(255,255,255,0.25); z-index: 2; }
+.tile--active { box-shadow: inset 0 0 0 2px var(--b-accent), 0 0 44px rgba(77,155,255,0.45); z-index: 2; }
 
 /* 輪替格:固定位置 + 遮罩,讓卡片在格內滑動換頁(GIF 換卡效果)*/
 .bento .slot { position: relative; overflow: hidden; border-radius: clamp(10px, 1vw, 18px); }
@@ -173,14 +215,14 @@
 .chart { display: flex; flex-direction: column; height: 100%; gap: 8px; }
 .chart__title { font-family: var(--b-num); font-size: clamp(12px, 1.2vw, 18px); font-weight: 600; }
 .chart__svg { flex: 1; width: 100%; height: 100%; }
-.chart__grid { stroke: rgba(0,0,0,0.12); stroke-width: 1; }
+.chart__grid { stroke: rgba(35,72,140,0.14); stroke-width: 1; }
 
 /* ── 甜甜圈 ────────────────────────────────────────────────────────────────── */
 .donut { display: flex; align-items: center; gap: clamp(10px, 1.2vw, 22px); height: 100%; }
 .donut__svg { height: 100%; max-height: clamp(110px, 16vh, 200px); aspect-ratio: 1; flex: none; }
-.donut__track { fill: none; stroke: rgba(0,0,0,0.08); stroke-width: 16; }
-.donut__c-top { text-anchor: middle; font-family: var(--b-num); font-weight: 700; font-size: 22px; fill: var(--b-ink); }
-.donut__c-sub { text-anchor: middle; font-family: var(--b-num); font-size: 9px; fill: var(--b-ink); opacity: 0.6; }
+.donut__track { fill: none; stroke: rgba(35,72,140,0.12); stroke-width: 16; }
+.donut__c-top { text-anchor: middle; font-family: var(--b-num); font-weight: 700; font-size: 22px; fill: var(--b-navy); }
+.donut__c-sub { text-anchor: middle; font-family: var(--b-num); font-size: 9px; fill: var(--b-navy); opacity: 0.6; }
 .donut__legend { list-style: none; display: flex; flex-direction: column; gap: 6px; font-family: var(--b-num); font-size: clamp(11px, 1.05vw, 16px); }
 .donut__legend li { display: flex; align-items: center; gap: 8px; }
 .donut__sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
@@ -193,3 +235,29 @@
 .dim-dots { display: flex; gap: 8px; margin-top: auto; }
 .dim-dots i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; opacity: 0.28; transition: opacity 0.3s, transform 0.3s; }
 .dim-dots i.on { opacity: 1; transform: scale(1.25); }
+
+/* ── 房屋資訊牆(.bento)專屬:透明玻璃框 + 白字 + 字級縮兩級 ──────────────────
+   情境牆(.scene-cols)不受影響;深藍錨點磚(.tile--ink)維持原樣。 */
+/* 透明玻璃框:去白底,只留邊角反光(內亮邊 + 左上高光)+ 陰影 */
+.bento .tile:not(.tile--ink) {
+  background: rgba(255,255,255,0.045);
+  color: #fff;
+  border-color: rgba(190,215,255,0.20);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgba(210,228,255,0.42),
+    inset -1.5px -1.5px 0 rgba(2,8,22,0.42),
+    12px 16px 32px rgba(2,8,22,0.42),
+    -6px -6px 18px rgba(120,160,255,0.06);
+}
+.bento .tile:not(.tile--ink)::before {
+  background:
+    radial-gradient(130% 120% at 0% 0%, rgba(210,228,255,0.30) 0%, rgba(210,228,255,0) 40%),
+    linear-gradient(155deg, rgba(200,222,255,0.10) 0%, rgba(255,255,255,0) 22%);
+}
+/* 字重調細 + 字級抓中間值,大數字統一同一級(含天氣預報)*/
+.bento .t-num,
+.bento .t-num--sm  { font-weight: 500; font-size: clamp(34px, 5.2vw, 88px); }
+.bento .t-eyebrow  { font-weight: 600; font-size: clamp(12px, 1.35vw, 22px); }
+.bento .t-label--lg { font-weight: 500; font-size: clamp(19px, 2.5vw, 42px); }
+.bento .t-label    { font-size: clamp(13px, 1.35vw, 23px); }
+.bento .t-foot     { font-weight: 400; font-size: clamp(11px, 1.25vw, 21px); }

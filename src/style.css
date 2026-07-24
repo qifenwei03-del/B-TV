@@ -4,24 +4,39 @@
    尺寸以大尺寸 TV 為前提,全用 clamp(vw/vh) 自適應。
    ══════════════════════════════════════════════════════════════════════════════ */
 
+/* 主字型:TASA Orbiter(變體字型,拉丁/數字);中文自動 fallback 到中文字型 */
+@font-face {
+  font-family: 'TASA Orbiter';
+  src: url('/fonts/TASAOrbiter-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+/* 中文字型:GlowSans TC Condensed(窄體 ≈0.9 字寬)*/
+@font-face { font-family: 'GlowSans TC'; src: url('/fonts/GlowSansTC-Condensed-Light.otf') format('opentype');   font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'GlowSans TC'; src: url('/fonts/GlowSansTC-Condensed-Regular.otf') format('opentype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'GlowSans TC'; src: url('/fonts/GlowSansTC-Condensed-Medium.otf') format('opentype');  font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'GlowSans TC'; src: url('/fonts/GlowSansTC-Condensed-Bold.otf') format('opentype');    font-weight: 700; font-style: normal; font-display: swap; }
+
 :root {
-  --accent:      #009393;
-  --accent-2:    #4dbaba;
-  --accent-deep: #006a6a;
-  --accent-glow: rgba(0, 147, 147, 0.30);
+  /* 藍白玻璃主題:主色由 teal 改為電光藍;底色由近黑改為藍白亮調。 */
+  --accent:      #2f7bff;
+  --accent-2:    #5b9dff;
+  --accent-deep: #1657d6;
+  --accent-glow: rgba(47, 123, 255, 0.28);
 
-  --c-bg:       #02090b;
-  --c-text:     #eef3f3;
-  --c-text-dim: #8aa2a2;
+  --c-bg:       #050d1f;
+  --c-text:     #eaf1ff;
+  --c-text-dim: #7f96bd;
 
-  --good:  #4dbaba;
+  --good:  #2f7bff;
   --warn:  #f59e0b;
   --info:  #6f8ba0;
   --down:  #f43f5e;
 
-  --font-cjk:     'Chiron Hei HK', 'Space Grotesk', sans-serif;
-  --font-display: 'Space Grotesk', 'Chiron Hei HK', sans-serif;
-  --font-hud:     'JetBrains Mono', monospace;
+  --font-cjk:     'TASA Orbiter', 'GlowSans TC', 'Chiron Hei HK', sans-serif;
+  --font-display: 'TASA Orbiter', 'GlowSans TC', 'Space Grotesk', sans-serif;
+  --font-hud:     'TASA Orbiter', 'GlowSans TC', 'JetBrains Mono', monospace;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -47,20 +62,51 @@ body {
   position: relative;
   width: 100vw; height: 100vh;
   display: flex; align-items: center; justify-content: center;
+  /* 第二頁起:純深藍(帶中央情境光暈與淡淡頂光,乾淨)*/
   background:
-    radial-gradient(ellipse 62% 62% at 50% 46%,
-      color-mix(in srgb, var(--scene-accent) 24%, transparent) 0%,
-      color-mix(in srgb, var(--scene-accent) 7%, transparent) 42%,
-      transparent 72%),
-    radial-gradient(ellipse 120% 100% at 50% 50%, transparent 46%, rgba(0,0,0,0.72) 100%),
-    var(--c-bg);
+    radial-gradient(ellipse 60% 56% at 50% 44%,
+      color-mix(in srgb, var(--scene-accent) 16%, transparent) 0%,
+      color-mix(in srgb, var(--scene-accent) 5%, transparent) 40%,
+      transparent 70%),
+    radial-gradient(120% 90% at 50% 6%, rgba(120,165,255,0.12) 0%, rgba(120,165,255,0) 46%),
+    radial-gradient(130% 110% at 50% 40%, #12285a 0%, #0c1d44 44%, #081633 72%, #050e22 100%);
   transition: background 0.8s var(--ease);
+}
+/* 待機頁(第一頁):保留洞穴光弧構圖 */
+.stage--idle {
+  background:
+    radial-gradient(210% 210% at -35% -42%,
+      transparent 47%,
+      rgba(190,220,255,0.14) 50%,
+      rgba(190,220,255,0.08) 51.4%,
+      transparent 51.9%),
+    radial-gradient(210% 210% at -35% -42%,
+      transparent 51.4%,
+      rgba(255,255,255,0.3) 52%,
+      rgba(255,255,255,0.95) 52.6%,
+      rgba(240,248,255,0.7) 55.5%,
+      rgba(210,232,255,0.4) 61%,
+      rgba(170,210,255,0.2) 69%,
+      rgba(140,190,255,0.08) 79%,
+      transparent 90%),
+    radial-gradient(80% 72% at 104% 112%, rgba(206,230,255,0.42) 0%, rgba(206,230,255,0) 54%),
+    radial-gradient(ellipse 60% 56% at 50% 46%,
+      color-mix(in srgb, var(--scene-accent) 16%, transparent) 0%,
+      color-mix(in srgb, var(--scene-accent) 5%, transparent) 40%,
+      transparent 68%),
+    radial-gradient(86% 78% at 6% 4%, rgba(150,190,255,0.16) 0%, rgba(150,190,255,0) 56%),
+    radial-gradient(135% 116% at 84% 98%,
+      transparent 34%,
+      rgba(3,8,22,0.34) 72%,
+      rgba(1,4,12,0.55) 100%),
+    linear-gradient(330deg,
+      #0b1a36 0%, #0c1d3c 30%, #102244 58%, #142a52 80%, #193360 100%);
 }
 .stage__vignette {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    linear-gradient(rgba(150,190,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(150,190,255,0.045) 1px, transparent 1px);
   background-size: 60px 60px;
   mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 30%, transparent 82%);
 }
@@ -77,17 +123,52 @@ body {
 .idle__halo {
   position: absolute; width: clamp(380px, 60vh, 720px); height: clamp(380px, 60vh, 720px);
   border-radius: 50%;
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 62%);
+  background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 62%);
   z-index: -1;
 }
 .idle__title {
-  font-family: var(--font-cjk); font-weight: 700;
-  font-size: clamp(56px, 12vh, 150px); letter-spacing: 0.14em;
-  text-shadow: 0 0 50px var(--accent-glow);
+  font-family: var(--font-cjk); font-weight: 300;
+  font-size: clamp(56px, 12vh, 150px); letter-spacing: 0.16em;
+  color: #fff;
+  /* 自體發光:白核 + 藍白外圈多層光暈,墊一點深藍陰影維持清晰 */
+  text-shadow:
+    0 0 8px rgba(255,255,255,0.95),
+    0 0 22px rgba(198,224,255,0.85),
+    0 0 46px rgba(120,180,255,0.6),
+    0 0 90px rgba(80,150,255,0.45),
+    0 3px 12px rgba(11,28,60,0.4);
+  /* 呼吸脈動:光暈一亮一暗循環 */
+  animation: idleGlow 3.6s ease-in-out infinite;
+  /* 背景字體反光:往下映一道漸淡倒影 */
+  -webkit-box-reflect: below 0.12em linear-gradient(transparent 52%, rgba(255,255,255,0.22) 100%);
+}
+@keyframes idleGlow {
+  0%, 100% {
+    text-shadow:
+      0 0 7px rgba(255,255,255,0.82),
+      0 0 18px rgba(198,224,255,0.62),
+      0 0 38px rgba(120,180,255,0.4),
+      0 0 72px rgba(80,150,255,0.26),
+      0 3px 12px rgba(11,28,60,0.4);
+  }
+  50% {
+    text-shadow:
+      0 0 12px rgba(255,255,255,1),
+      0 0 32px rgba(198,224,255,0.98),
+      0 0 64px rgba(120,180,255,0.8),
+      0 0 120px rgba(80,150,255,0.62),
+      0 3px 12px rgba(11,28,60,0.4);
+  }
 }
 .idle__sub {
-  font-family: var(--font-hud); font-size: clamp(14px, 2vh, 24px);
-  letter-spacing: 0.55em; text-indent: 0.55em; color: var(--accent-2);
+  font-family: var(--font-hud); font-weight: 300; font-size: clamp(14px, 2vh, 24px);
+  letter-spacing: 0.55em; text-indent: 0.55em; color: #fff;
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.9),
+    0 0 16px rgba(198,224,255,0.7),
+    0 0 34px rgba(120,180,255,0.5),
+    0 2px 8px rgba(11,28,60,0.4);
+  -webkit-box-reflect: below 0.3em linear-gradient(transparent 50%, rgba(255,255,255,0.16) 100%);
 }
 .idle__hint {
   margin-top: clamp(16px, 3vh, 40px);
@@ -106,6 +187,8 @@ body {
   letter-spacing: 0.5em; text-indent: 0.5em; color: var(--accent-2);
   text-transform: uppercase;
 }
+/* 前言(第二畫面)的「AI 聲紋」字樣改白 */
+.intro__eyebrow { color: #fff; text-shadow: 0 1px 10px rgba(11,28,60,0.4); }
 .intro__line {
   font-size: clamp(22px, 3.6vh, 44px); font-weight: 500; line-height: 1.6;
   letter-spacing: 0.04em; max-width: 24ch;
@@ -114,15 +197,16 @@ body {
 .intro__count {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(160px, 36vh, 420px); color: #fff;
-  text-shadow: 0 0 80px var(--accent);
+  font-size: clamp(160px, 36vh, 420px); color: var(--accent);
+  text-shadow: 0 0 80px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 .outro__line {
   font-weight: 700; font-size: clamp(34px, 6vh, 76px); letter-spacing: 0.06em;
   text-shadow: 0 0 40px var(--accent-glow);
 }
 .outro__sub {
-  font-size: clamp(16px, 2.4vh, 28px); letter-spacing: 0.16em; color: var(--c-text-dim);
+  font-size: clamp(12px, 1.8vh, 20px); letter-spacing: 0.24em; color: #fff;
+  text-shadow: 0 1px 10px rgba(11,28,60,0.4);
 }
 
 /* ── Voiceprint ────────────────────────────────────────────────────────────── */

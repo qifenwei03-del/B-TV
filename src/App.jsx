@@ -157,7 +157,7 @@ export default function App() {
   const screen = renderScreen(s, persona, dispatch)
 
   return (
-    <div className="stage" style={accent ? { '--scene-accent': accent } : undefined}>
+    <div className={`stage stage--${s.phase}`} style={accent ? { '--scene-accent': accent } : undefined}>
       <div className="stage__vignette" />
 
       {/* 不用 AnimatePresence:待機 / 前言 / 聲音 EQ 等畫面含 repeat:Infinity 動畫,

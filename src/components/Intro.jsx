@@ -25,7 +25,7 @@ export default function Intro() {
     <div className="intro" style={{ '--scene-accent': 'var(--accent)' }}>
       <p className="intro__eyebrow">AI 聲紋 · VOICEPRINT</p>
 
-      <Voiceprint accent="var(--accent)" />
+      <Voiceprint accent="#ffffff" />
 
       <motion.p
         className="intro__line"
