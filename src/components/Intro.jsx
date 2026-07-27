@@ -23,6 +23,12 @@ export default function Intro() {
 
   return (
     <div className="intro" style={{ '--scene-accent': 'var(--accent)' }}>
+      {/* 倒數 3/2/1 時淡入的深色遮罩,讓背景變暗、數字更聚焦 */}
+      <motion.div
+        className="intro__dim"
+        animate={{ opacity: count !== null ? 1 : 0 }}
+        transition={{ duration: 0.35, ease: 'easeInOut' }}
+      />
       <p className="intro__eyebrow">AI 聲紋 · VOICEPRINT</p>
 
       <Voiceprint accent="#ffffff" />

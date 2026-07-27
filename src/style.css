@@ -194,11 +194,23 @@ body {
   letter-spacing: 0.04em; max-width: 24ch;
   color: color-mix(in srgb, var(--accent) 16%, var(--c-text));
 }
+/* 倒數時的深色遮罩(蓋滿全螢幕,只在 3/2/1 淡入)*/
+.intro__dim {
+  position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  background: rgba(2, 6, 16, 0.55);
+}
 .intro__count {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 2;
+  /* 用 inset+margin auto 置中(不佔用 transform,避免被 framer 的 scale 動畫蓋掉)*/
+  position: absolute; inset: 0; margin: auto;
+  width: fit-content; height: fit-content;
   font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(160px, 36vh, 420px); color: var(--accent);
-  text-shadow: 0 0 80px color-mix(in srgb, var(--accent) 45%, transparent);
+  font-size: clamp(160px, 36vh, 420px); color: #fff;
+  /* 白色數字 + 底光(光從下方往外散)*/
+  text-shadow:
+    0 0 24px rgba(255,255,255,0.3),
+    0 22px 55px color-mix(in srgb, var(--accent) 70%, transparent),
+    0 42px 100px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 .outro__line {
   font-weight: 700; font-size: clamp(34px, 6vh, 76px); letter-spacing: 0.06em;
@@ -269,9 +281,9 @@ body {
   gap: clamp(16px, 2.5vw, 36px);
   padding: clamp(14px, 2vh, 24px) clamp(22px, 3vw, 40px);
   border-radius: 16px;
-  background: color-mix(in srgb, var(--p-accent) 12%, rgba(255,255,255,0.02));
-  border: 1px solid color-mix(in srgb, var(--p-accent) 40%, transparent);
-  box-shadow: inset 0 0 30px color-mix(in srgb, var(--p-accent) 10%, transparent);
+  /* 拿掉彩色底,只留各自顏色的外框 */
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--p-accent) 55%, transparent);
 }
 .persona-list__no {
   font-family: var(--font-hud); font-size: clamp(16px, 2.4vh, 28px);

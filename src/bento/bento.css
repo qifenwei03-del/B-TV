@@ -41,7 +41,18 @@
 }
 
 /* ── 情境牆:3 欄垂直捲軸(一次動一欄,整欄往上捲)──────────────────────────── */
-.scene-cols { display: flex; gap: clamp(10px, 1.1vw, 18px); }
+.scene-cols {
+  display: flex; gap: clamp(10px, 1.1vw, 18px);
+  /* 背景跟隨當前角色主色(--scene-accent 由 App 依 persona 覆寫)→ 換角色變色 */
+  background:
+    radial-gradient(120% 90% at 50% 4%, color-mix(in srgb, var(--scene-accent) 42%, transparent) 0%, transparent 46%),
+    radial-gradient(130% 110% at 50% 42%,
+      color-mix(in srgb, var(--scene-accent) 55%, #070f20) 0%,
+      color-mix(in srgb, var(--scene-accent) 32%, #060c1a) 46%,
+      color-mix(in srgb, var(--scene-accent) 15%, #040914) 74%,
+      #03060e 100%);
+  transition: background 0.8s var(--ease);
+}
 .scene-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: clamp(10px, 1.1vw, 18px); }
 .scene-col--m { flex: 1.15 1 0; }
 .scene-col--r { flex: 1.2 1 0; }
@@ -156,6 +167,47 @@
 
 .tile--active { box-shadow: inset 0 0 0 2px var(--b-accent), 0 0 44px rgba(77,155,255,0.45); z-index: 2; }
 
+/* ── 情境牆(1-5)專屬:霧光板 · 透光白玻璃磚 ─────────────────────────────────
+   半透明白 + 背景模糊(讓角色主色透出成霧面)+ 角落反光/陰影做立體細節。 */
+.scene-cols .tile {
+  color: color-mix(in srgb, var(--scene-accent) 38%, #04060c);   /* 文字 = 該場景最深的色調(同色相、更深)*/
+  background:
+    linear-gradient(150deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.28) 55%, rgba(255,255,255,0.34) 100%);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+  backdrop-filter: blur(12px) saturate(1.15);
+  border: 1px solid rgba(255,255,255,0.5);
+  /* 只留「轉角高光」(內亮邊)+ 右下陰影,不再有大片反光 */
+  box-shadow:
+    inset 1.4px 1.4px 0 rgba(255,255,255,0.68),   /* 左上轉角高光 */
+    inset -1.4px -1.4px 0 rgba(18,42,86,0.2),      /* 右下角內陰影 */
+    10px 14px 30px rgba(3,10,28,0.32);             /* 右下投影(浮起感)*/
+}
+/* 移除左上大片反光,只保留上面的轉角高光 */
+.scene-cols .tile::before { background: none; }
+
+/* ── 情境牆(1-5)統一字級系統:4 級字級 × 3 級字重(以「聲音解方」卡為範本)──
+   顏色由上面的 .scene-cols .tile 帶入各場景深色。 */
+/* L1 · 大數字(唯一的展示級大字)*/
+.scene-cols .stat__num        { font-size: clamp(40px, 6vw, 116px); font-weight: 500; }
+/* L2 · 標題級:痛點提問 + 解方標題 + 主要數值(全部同大小同比例)*/
+.scene-cols .narr__head,
+.scene-cols .hero__q,
+.scene-cols .range__value,
+.scene-cols .cbar__val,
+.scene-cols .stat__num--long  { font-size: clamp(23px, 3.1vw, 50px); font-weight: 500; }
+/* L3 · 內文 / 標籤 */
+.scene-cols .narr__detail,
+.scene-cols .viz__labels,
+.scene-cols .cbar__label,
+.scene-cols .chart__title     { font-size: clamp(15px, 1.8vw, 28px); font-weight: 400; }
+/* L4 · 小標 / 註腳 */
+.scene-cols .t-eyebrow,
+.scene-cols .t-foot           { font-size: clamp(12px, 1.4vw, 21px); font-weight: 600; }
+/* 各卡頂列一律頂端對齊 → 每格標題離框頂等距(不再被大 icon 置中往下推)*/
+.scene-cols .stat__top,
+.scene-cols .viz__top,
+.scene-cols .narr__tag        { align-items: flex-start; }
+
 /* 輪替格:固定位置 + 遮罩,讓卡片在格內滑動換頁(GIF 換卡效果)*/
 .bento .slot { position: relative; overflow: hidden; border-radius: clamp(10px, 1vw, 18px); }
 .bento .card-face { position: absolute; inset: 0; }
@@ -241,23 +293,30 @@
 /* 透明玻璃框:去白底,只留邊角反光(內亮邊 + 左上高光)+ 陰影 */
 .bento .tile:not(.tile--ink) {
   background: rgba(255,255,255,0.045);
-  color: #fff;
+  color: rgba(255,255,255,0.72);   /* 白字改半透明(宣言磚 .tile--ink 不受影響)*/
   border-color: rgba(190,215,255,0.20);
+  /* 保留邊緣反光 + 邊緣陰影 + 投影(移除的是 ::before 那片大高光)*/
   box-shadow:
-    inset 1.5px 1.5px 0 rgba(210,228,255,0.42),
-    inset -1.5px -1.5px 0 rgba(2,8,22,0.42),
-    12px 16px 32px rgba(2,8,22,0.42),
-    -6px -6px 18px rgba(120,160,255,0.06);
+    inset 1.4px 1.4px 0 rgba(210,228,255,0.4),   /* 邊緣反光(左上內亮邊)*/
+    inset -1.4px -1.4px 0 rgba(2,8,22,0.42),      /* 邊緣陰影(右下內暗邊)*/
+    12px 16px 32px rgba(2,8,22,0.42);             /* 右下投影 */
+  /* 文字後面加一點陰影 */
+  text-shadow: 0 2px 10px rgba(2,8,22,0.45);
 }
-.bento .tile:not(.tile--ink)::before {
-  background:
-    radial-gradient(130% 120% at 0% 0%, rgba(210,228,255,0.30) 0%, rgba(210,228,255,0) 40%),
-    linear-gradient(155deg, rgba(200,222,255,0.10) 0%, rgba(255,255,255,0) 22%);
-}
+/* 移除左上角高光 */
+.bento .tile:not(.tile--ink)::before { background: none; }
 /* 字重調細 + 字級抓中間值,大數字統一同一級(含天氣預報)*/
+/* 與情境牆一致的 4 級字級 × 3 級字重 */
 .bento .t-num,
-.bento .t-num--sm  { font-weight: 500; font-size: clamp(34px, 5.2vw, 88px); }
-.bento .t-eyebrow  { font-weight: 600; font-size: clamp(12px, 1.35vw, 22px); }
-.bento .t-label--lg { font-weight: 500; font-size: clamp(19px, 2.5vw, 42px); }
-.bento .t-label    { font-size: clamp(13px, 1.35vw, 23px); }
-.bento .t-foot     { font-weight: 400; font-size: clamp(11px, 1.25vw, 21px); }
+.bento .t-num--sm   { font-size: clamp(40px, 6vw, 116px); font-weight: 400; line-height: 0.9; padding-bottom: 0.15em; }   /* L1 大數字(較細;padding 把視覺底邊抬到與其他字齊)*/
+.bento .t-label     { font-size: clamp(15px, 1.8vw, 28px); font-weight: 400; }   /* L3 內文 */
+.bento .t-label--lg { font-size: clamp(23px, 3.1vw, 50px); font-weight: 500; line-height: 1.14; }   /* L2 標題 */
+.bento .t-eyebrow,
+.bento .t-foot      { font-size: clamp(12px, 1.4vw, 21px); font-weight: 600; }   /* L4 小標 */
+/* 標題列頂端對齊 → 每格標題離框頂等距(不被 icon 往下推)*/
+.bento .t-row       { align-items: flex-start; }
+/* 文字字距調開一點(大數字維持原本緊排)*/
+.bento .t-label--lg,
+.bento .t-label,
+.bento .t-eyebrow,
+.bento .t-foot      { letter-spacing: 0.1em; }

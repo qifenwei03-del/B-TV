@@ -232,12 +232,8 @@ export default function SceneBento({ persona, mode = 'play', onComplete }) {
         </Reel>
       </div>
 
-      {/* 中欄:3D 房子(無 persona key → 換角色不 remount、平滑換燈)+ 全健築指數 */}
+      {/* 中欄:全健築指數(3D 房子格已移除)*/}
       <div className="scene-col scene-col--m">
-        <div className="tile tile--ink col-anchor col-anchor--house house-tile" style={{ padding: 0 }}>
-          <HouseCanvas persona={persona} dimKey={curK} shotCue={beat} />
-          <div className="house-tile__cap"><b>你的未來居家</b><span>環境隨情境即時調節</span></div>
-        </div>
         <CardFace key={`s-${persona.id}`} card={scoreCard} enter={ENTER(0.2)} />
       </div>
 
