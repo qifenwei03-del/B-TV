@@ -31,7 +31,7 @@ export default function Idle() {
         animate={{ opacity: [0.35, 0.85, 0.35] }}
         transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
       >
-        請入座，翻開書本，將邀請卡放上感應區
+        請入座，將邀請卡放上感應區
       </motion.p>
     </div>
   )
