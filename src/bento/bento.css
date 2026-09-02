@@ -447,3 +447,40 @@
 .bento .t-label,
 .bento .t-eyebrow,
 .bento .t-foot      { letter-spacing: 0.1em; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   WHITE 版（branch: white）— 底色全白、字轉藍
+   ── 房屋資訊牆(.bento):底色白、面板白、字藍
+   ── 情境牆(.scene-cols):依指示「只換底色」,卡片與白字維持原狀
+   要回深色版把這整段刪掉即可。
+   ══════════════════════════════════════════════════════════════════════════════ */
+.bento {
+  background:
+    radial-gradient(120% 90% at 50% 4%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 46%),
+    linear-gradient(158deg, #ffffff 0%, #eef5ff 45%, #dce9fb 100%);
+}
+/* 面板:白底藍字(平塗色塊系統不變,只是底色與字色翻過來) */
+.bento .tile:not(.tile--ink) {
+  background: #ffffff;
+  color: #17357a;
+  text-shadow: none;
+}
+/* 光邊格:白底上白邊會消失 → 邊線改藍,往內仍是青藍衰減 */
+.bento .tile--beam:not(.tile--ink) {
+  background-image: linear-gradient(168deg,
+    color-mix(in srgb, var(--beam-glow) 26%, #ffffff) 0%,
+    color-mix(in srgb, var(--beam-inner) 18%, #ffffff) 13%,
+    #ffffff 44%,
+    #ffffff 58%,
+    color-mix(in srgb, var(--beam-inner) 18%, #ffffff) 88%,
+    color-mix(in srgb, var(--beam-glow) 22%, #ffffff) 100%);
+  border-color: color-mix(in srgb, var(--beam-glow) 85%, #ffffff);
+  box-shadow:
+    inset 0 0 clamp(26px, 3vw, 60px) color-mix(in srgb, var(--beam-inner) 34%, transparent),
+    0 0 clamp(4px, 0.5vw, 10px) color-mix(in srgb, var(--beam-glow) 24%, transparent);
+  text-shadow: none;
+}
+/* 情境牆 1-5:只換底色(卡片、字色、配色邏輯都不動) */
+.scene-cols {
+  background: linear-gradient(158deg, #ffffff 0%, #f2f7ff 45%, #e4eefc 100%);
+}

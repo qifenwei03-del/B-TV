@@ -563,3 +563,66 @@ body.editing .tuner input { cursor: pointer; }
 .statusdot--idle { color: var(--warn); }
 .statusdot--down { color: var(--down); }
 .statusdot--live .statusdot__led { box-shadow: 0 0 8px currentColor; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   WHITE 版（branch: white）— 底色全白、字轉藍
+   放在檔案最後 → 同權重時覆蓋前面的深色設定,要回深色版把這整段刪掉即可。
+   1-5 情境牆(.scene-cols)這一版「只換底色」,卡片與字色不動(見 bento.css 末段)。
+   ══════════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* 待機頁:白底 + 右下淡藍,光束改成藍色發光(白底上白核心會消失 → 暈色加重) */
+  --idle-bg-1:  #ffffff;
+  --idle-bg-2:  #eef5ff;
+  --idle-bg-3:  #d7e6fa;
+  --idle-haze:  #bcd8fb;
+  --beam-core:  #ffffff;
+  --beam-inner: #7cc0ff;
+  --beam-glow:  #2f8dfb;
+  --beam-edge:  #1668dd;
+  /* 三行字:深藍大標 / 中藍英文 / 藍色提示 */
+  --idle-title: #1b3f8f;
+  --idle-sub:   #6a8cc8;
+  --idle-hint:  #2a56a8;
+  /* 全域:底白、字藍 */
+  --c-bg:       #ffffff;
+  --c-text:     #17357a;
+  --c-text-dim: #5b7cb8;
+}
+
+/* 格線:淺色線在白底上看不見 → 換成淡藍灰 */
+.stage__vignette {
+  background:
+    linear-gradient(rgba(70,110,180,0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(70,110,180,0.10) 1px, transparent 1px);
+}
+
+/* 大標陰影:深藍模糊在白底上會變成髒污 → 換成很淡的藍灰,只留一點厚度 */
+.idle__title {
+  text-shadow:
+    0 2px 10px rgba(120,155,215,0.22),
+    0 8px 22px rgba(110,145,205,0.18),
+    0 18px 40px rgba(105,140,200,0.12);
+  -webkit-box-reflect: below 0.12em linear-gradient(transparent 52%, rgba(60,105,180,0.16) 100%);
+}
+.idle__sub {
+  text-shadow: 0 2px 8px rgba(120,155,215,0.28);
+  -webkit-box-reflect: below 0.3em linear-gradient(transparent 55%, rgba(60,105,180,0.12) 100%);
+}
+/* 提示原本墊深藍外暈(壓在光束上用)→ 白底改墊白色,才不會出現黑圈 */
+.idle__hint {
+  text-shadow:
+    0 0 10px rgba(255,255,255,0.95),
+    0 0 26px rgba(255,255,255,0.85),
+    0 2px 6px rgba(255,255,255,0.9);
+}
+/* 中央柔光:白底上白色看不到 → 換淡藍 */
+.idle__halo { background: radial-gradient(circle, rgba(150,195,250,0.30) 0%, transparent 62%); }
+
+/* 商標:改成藍色漸層(仍保留「被上方光帶照到」的方向感) */
+.idle__logo {
+  background: linear-gradient(148deg,
+    #6fb4ff 0%,
+    #2f8dfb 26%,
+    var(--idle-title, #1b3f8f) 62%,
+    color-mix(in srgb, var(--idle-title, #1b3f8f) 88%, #08214f) 100%);
+}
