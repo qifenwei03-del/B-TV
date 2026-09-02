@@ -8,7 +8,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 // 在模型裡自由移動 → 擷取機位 → 預覽串接動畫 → 存到 localStorage(電視端自動讀取)。
 // 自動偵測相鄰機位之間的直線是否穿牆並標警告。模型載入/正規化方式與 HouseCanvas 一致,
 // 所以擷取的座標在電視端完全對得上。
-const MODEL_URL = '/house.glb'
+const MODEL_URL = `${import.meta.env.BASE_URL}house.glb`
 const LS_KEY = 'houseViewpoints'
 const r3 = (n) => Math.round(n * 1000) / 1000
 

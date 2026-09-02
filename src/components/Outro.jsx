@@ -17,7 +17,7 @@ export default function Outro() {
     <div className="outro" style={{ '--scene-accent': 'var(--accent)' }}>
       <p className="outro__eyebrow">結語 · OUTRO</p>
 
-      <Voiceprint accent="#ffffff" />
+      <Voiceprint accent="var(--idle-title)" />
 
       <motion.h1
         className="outro__line"

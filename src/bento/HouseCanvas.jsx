@@ -12,7 +12,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { lightingTarget } from './houseLighting.js'
 
 // ── 畫廊級渲染可調常數(集中放,方便上線微調)──────────────────────────────────
-const HDRI_URL = '/hdr/studio.hdr'      // 室內 HDRI(Poly Haven CC0);載不到則退回 RoomEnvironment
+const HDRI_URL = `${import.meta.env.BASE_URL}hdr/studio.hdr`      // 室內 HDRI(Poly Haven CC0);載不到則退回 RoomEnvironment
 const ENV_INTENSITY = 0.18              // 環境光(HDRI)強度:壓低 → 夜晚畫廊基調 + 減少冷色反射汙染
 const EXPOSURE = 0.72                   // ACES 曝光
 const AMBIENT_SCALE = 0.45              // 把 persona 的均勻環境光壓低(白牆才不會被打平/過曝)
@@ -36,7 +36,7 @@ const DOWNSPOT_INT = 4.0                // 室內投射燈(天花下打光池)�
 // props:
 //   persona  — { id, accent }(決定基礎燈光與窗戶/點光顏色)
 //   dimKey   — 'light'|'air'|'temp'|'sound'|null(scene 解方展演中的當前維度,微調燈光)
-const MODEL_URL = '/house.glb'
+const MODEL_URL = `${import.meta.env.BASE_URL}house.glb`
 
 // 模型只載入/解析一次(public/house.glb 可達 40MB+),之後每次掛載 clone 重用。
 

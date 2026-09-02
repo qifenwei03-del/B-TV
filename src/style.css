@@ -7,16 +7,16 @@
 /* 主字型:TASA Orbiter(變體字型,拉丁/數字);中文自動 fallback 到中文字型 */
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('/fonts/TASAOrbiter-VariableFont_wght.ttf') format('truetype-variations');
+  src: url('./fonts/TASAOrbiter-VariableFont_wght.ttf') format('truetype-variations');
   font-weight: 400 800;
   font-style: normal;
   font-display: swap;
 }
 /* 中文字型:GlowSans TC Condensed(窄體 ≈0.9 字寬)*/
-@font-face { font-family: 'GlowSans TC'; src: url('/fonts/GlowSansTC-Condensed-Light.otf') format('opentype');   font-weight: 300; font-style: normal; font-display: swap; }
-@font-face { font-family: 'GlowSans TC'; src: url('/fonts/GlowSansTC-Condensed-Regular.otf') format('opentype'); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: 'GlowSans TC'; src: url('/fonts/GlowSansTC-Condensed-Medium.otf') format('opentype');  font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: 'GlowSans TC'; src: url('/fonts/GlowSansTC-Condensed-Bold.otf') format('opentype');    font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'GlowSans TC'; src: url('./fonts/GlowSansTC-Condensed-Light.otf') format('opentype');   font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'GlowSans TC'; src: url('./fonts/GlowSansTC-Condensed-Regular.otf') format('opentype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'GlowSans TC'; src: url('./fonts/GlowSansTC-Condensed-Medium.otf') format('opentype');  font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'GlowSans TC'; src: url('./fonts/GlowSansTC-Condensed-Bold.otf') format('opentype');    font-weight: 700; font-style: normal; font-display: swap; }
 
 :root {
   /* 藍白玻璃主題:主色由 teal 改為電光藍;底色由近黑改為藍白亮調。 */
@@ -42,6 +42,24 @@
 
   --scene-accent: var(--accent);  /* 場景 / loop 由 App 以 inline 覆寫 */
   --dim-tint:     var(--accent);  /* 當前維度主色,由 Scene 覆寫 */
+
+  /* ── 待機頁配色(按 E 開編輯面板可即時調;這裡是預設值)────────────────────
+     StyleTuner 會把調整結果覆寫在 :root inline style,並存進 localStorage。
+     調好後按面板的「複製 CSS」把值貼回這一段固化。 */
+  --idle-bg-1:  #121263;   /* 底色漸層 · 起點(左上)*/
+  --idle-bg-2:  #121c49;   /* 底色漸層 · 中段 */
+  --idle-bg-3:  #000019;   /* 底色漸層 · 終點(右下,近黑)*/
+  --idle-haze:  #308acf;   /* 中央大範圍藍霧 */
+  --beam-core:  #ffffff;   /* 光束核心 */
+  --beam-inner: #ade5ff;   /* 光束內暈 */
+  --beam-glow:  #8ad2ff;   /* 光束中暈 */
+  --beam-edge:  #2e9aff;   /* 光束外暈 */
+  --idle-title: #7ac3ff;   /* 大標 感應光寓(前言/結語的字與聲紋也吃這個)*/
+  --idle-sub:   #7ac3ff;   /* 英文 SENSING RESIDENCE */
+  --idle-hint:  #7ac3ff;   /* 小標 請入座… */
+
+  /* 光束本體改由 SVG 畫(三點造型 + 頭中尾寬度),見 components/IdleBeam.jsx;
+     幾何存 src/beamStore.js,顏色仍吃上面這幾個 --beam-* 變數。 */
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,45 +80,33 @@ body {
   position: relative;
   width: 100vw; height: 100vh;
   display: flex; align-items: center; justify-content: center;
-  /* 第二頁起:純深藍(帶中央情境光暈與淡淡頂光,乾淨)*/
+  /* 第二頁起(前言 / 房屋資訊 / 選角色 / 結語):與待機頁同一組配色,
+     只差沒有光束。1-5 情境牆由 .scene-cols 自己畫底,不吃這層。 */
   background:
     radial-gradient(ellipse 60% 56% at 50% 44%,
-      color-mix(in srgb, var(--scene-accent) 16%, transparent) 0%,
-      color-mix(in srgb, var(--scene-accent) 5%, transparent) 40%,
+      color-mix(in srgb, var(--scene-accent) 12%, transparent) 0%,
+      color-mix(in srgb, var(--scene-accent) 4%, transparent) 40%,
       transparent 70%),
-    radial-gradient(120% 90% at 50% 6%, rgba(120,165,255,0.12) 0%, rgba(120,165,255,0) 46%),
-    radial-gradient(130% 110% at 50% 40%, #12285a 0%, #0c1d44 44%, #081633 72%, #050e22 100%);
+    radial-gradient(120% 90% at 50% 6%,
+      color-mix(in srgb, var(--beam-glow) 9%, transparent) 0%,
+      transparent 46%),
+    radial-gradient(115% 85% at 50% 50%,
+      color-mix(in srgb, var(--idle-haze) 7%, transparent) 0%,
+      color-mix(in srgb, var(--idle-haze) 0%, transparent) 66%),
+    linear-gradient(150deg,
+      var(--idle-bg-1) 0%, var(--idle-bg-2) 45%, var(--idle-bg-3) 100%);
   transition: background 0.8s var(--ease);
 }
-/* 待機頁(第一頁):保留洞穴光弧構圖 */
+/* 待機頁(第一頁):深藍夜幕 + 左下→右上斜射光束
+   角度:光束沿 16:9 對角線(60.6deg),漸層方向必須垂直於它 → 150.6deg。
+   疊層由上往下:①四角壓暗 ②光束(白核→淺藍→藍暈)③大範圍藍霧 ④深藍底。 */
 .stage--idle {
   background:
-    radial-gradient(210% 210% at -35% -42%,
-      transparent 47%,
-      rgba(190,220,255,0.14) 50%,
-      rgba(190,220,255,0.08) 51.4%,
-      transparent 51.9%),
-    radial-gradient(210% 210% at -35% -42%,
-      transparent 51.4%,
-      rgba(255,255,255,0.3) 52%,
-      rgba(255,255,255,0.95) 52.6%,
-      rgba(240,248,255,0.7) 55.5%,
-      rgba(210,232,255,0.4) 61%,
-      rgba(170,210,255,0.2) 69%,
-      rgba(140,190,255,0.08) 79%,
-      transparent 90%),
-    radial-gradient(80% 72% at 104% 112%, rgba(206,230,255,0.42) 0%, rgba(206,230,255,0) 54%),
-    radial-gradient(ellipse 60% 56% at 50% 46%,
-      color-mix(in srgb, var(--scene-accent) 16%, transparent) 0%,
-      color-mix(in srgb, var(--scene-accent) 5%, transparent) 40%,
-      transparent 68%),
-    radial-gradient(86% 78% at 6% 4%, rgba(150,190,255,0.16) 0%, rgba(150,190,255,0) 56%),
-    radial-gradient(135% 116% at 84% 98%,
-      transparent 34%,
-      rgba(3,8,22,0.34) 72%,
-      rgba(1,4,12,0.55) 100%),
-    linear-gradient(330deg,
-      #0b1a36 0%, #0c1d3c 30%, #102244 58%, #142a52 80%, #193360 100%);
+    radial-gradient(115% 85% at 50% 50%,
+      color-mix(in srgb, var(--idle-haze) 7%, transparent) 0%,
+      color-mix(in srgb, var(--idle-haze) 0%, transparent) 66%),
+    linear-gradient(150deg,
+      var(--idle-bg-1) 0%, var(--idle-bg-2) 45%, var(--idle-bg-3) 100%);
 }
 .stage__vignette {
   position: absolute; inset: 0; pointer-events: none;
@@ -127,54 +133,124 @@ body {
   z-index: -1;
 }
 .idle__title {
-  font-family: var(--font-cjk); font-weight: 300;
-  font-size: clamp(56px, 12vh, 150px); letter-spacing: 0.16em;
-  color: #fff;
-  /* 自體發光:白核 + 藍白外圈多層光暈,墊一點深藍陰影維持清晰 */
+  /* 不用 GlowSans Condensed(≈0.9 窄體)→ 改 Chiron Hei HK,字身回到 1:1 正比例 */
+  font-family: 'Chiron Hei HK', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+  font-weight: 500;
+  /* text-indent 補償尾端字距,置中才不會被推左半格(小標/英文同樣處理 → 三行切齊)*/
+  font-size: clamp(56px, 12vh, 150px); letter-spacing: 0.16em; text-indent: 0.16em;
+  /* 不加光暈 / 脈動 → 忠實呈現 #95c1ee 本色 */
+  color: var(--idle-title);
+  /* 糊糊的深藍陰影:上緣很淡,往下逐層加重、擴散變大 */
   text-shadow:
-    0 0 8px rgba(255,255,255,0.95),
-    0 0 22px rgba(198,224,255,0.85),
-    0 0 46px rgba(120,180,255,0.6),
-    0 0 90px rgba(80,150,255,0.45),
-    0 3px 12px rgba(11,28,60,0.4);
-  /* 呼吸脈動:光暈一亮一暗循環 */
-  animation: idleGlow 3.6s ease-in-out infinite;
+    0 -3px 14px rgba(6,16,40,0.16),
+    0 4px 16px rgba(5,13,34,0.42),
+    0 11px 30px rgba(4,11,30,0.55),
+    0 22px 48px rgba(3,9,26,0.40);
   /* 背景字體反光:往下映一道漸淡倒影 */
   -webkit-box-reflect: below 0.12em linear-gradient(transparent 52%, rgba(255,255,255,0.22) 100%);
 }
-@keyframes idleGlow {
-  0%, 100% {
-    text-shadow:
-      0 0 7px rgba(255,255,255,0.82),
-      0 0 18px rgba(198,224,255,0.62),
-      0 0 38px rgba(120,180,255,0.4),
-      0 0 72px rgba(80,150,255,0.26),
-      0 3px 12px rgba(11,28,60,0.4);
-  }
-  50% {
-    text-shadow:
-      0 0 12px rgba(255,255,255,1),
-      0 0 32px rgba(198,224,255,0.98),
-      0 0 64px rgba(120,180,255,0.8),
-      0 0 120px rgba(80,150,255,0.62),
-      0 3px 12px rgba(11,28,60,0.4);
-  }
-}
 .idle__sub {
-  font-family: var(--font-hud); font-weight: 300; font-size: clamp(14px, 2vh, 24px);
-  letter-spacing: 0.55em; text-indent: 0.55em; color: #fff;
-  text-shadow:
-    0 0 6px rgba(255,255,255,0.9),
-    0 0 16px rgba(198,224,255,0.7),
-    0 0 34px rgba(120,180,255,0.5),
-    0 2px 8px rgba(11,28,60,0.4);
-  -webkit-box-reflect: below 0.3em linear-gradient(transparent 50%, rgba(255,255,255,0.16) 100%);
+  /* 細筆畫 + 窄長字身:Barlow Condensed 200,字距拉開;細線條怕糊,光暈只留很淡一層 */
+  font-family: 'Barlow Semi Condensed', 'Barlow Condensed', 'Roboto Condensed', sans-serif;
+  font-weight: 200; font-size: clamp(18px, 2.7vh, 34px);
+  /* 字距收小、單字之間拉開(word-spacing 補回總寬 → 仍與大標切齊)*/
+  letter-spacing: 0.62em; text-indent: 0.62em; word-spacing: 1.92em; color: var(--idle-sub);
+  text-shadow: 0 2px 8px rgba(6,16,38,0.5);
+  -webkit-box-reflect: below 0.3em linear-gradient(transparent 55%, rgba(180,215,255,0.12) 100%);
 }
 .idle__hint {
   margin-top: clamp(16px, 3vh, 40px);
-  font-size: clamp(15px, 2.2vh, 26px); letter-spacing: 0.3em; text-indent: 0.3em;
-  color: var(--c-text-dim);
+  font-size: clamp(15px, 2.2vh, 26px); letter-spacing: 1.061em; text-indent: 1.061em;
+  color: var(--idle-hint);
+  /* 斜射光束會從這行底下穿過 → 墊深藍外暈,壓在光束上仍讀得清楚 */
+  text-shadow:
+    0 0 10px rgba(4,12,30,0.95),
+    0 0 26px rgba(4,12,30,0.85),
+    0 2px 6px rgba(4,12,30,0.9);
 }
+
+/* 商標:置中、靠畫面下緣(比例對齊主視覺:寬約畫面 12%、下緣留 8%)。
+   顏色不吃圖檔:PNG 只當 alpha 遮罩,填色用 --idle-title 家族的漸層 —— 左上亮、
+   右下沉,像被上方那道光帶斜照到。 */
+.idle__logo {
+  position: fixed; left: 50%; bottom: clamp(30px, 8vh, 90px);
+  transform: translateX(-50%);
+  width: clamp(120px, 12vw, 260px); aspect-ratio: 227 / 46;
+  pointer-events: none;
+  background: linear-gradient(148deg,
+    #dcefff 0%,
+    #a9dbff 24%,
+    var(--idle-title, #7ac3ff) 56%,
+    color-mix(in srgb, var(--idle-title, #7ac3ff) 62%, #10315a) 100%);
+  -webkit-mask: var(--logo-src) center / contain no-repeat;
+  mask: var(--logo-src) center / contain no-repeat;
+}
+
+/* ── 待機頁光束(SVG;三點造型 + 頭中尾寬度)──────────────────────────────── */
+.idlebeam { position: absolute; inset: 0; pointer-events: none; }
+.idlebeam--edit .idlebeam__handles { pointer-events: auto; }
+/* 編輯模式:文字層讓開,否則它蓋在光束上面會攔截掉造型點的滑鼠事件 */
+body.editing .screen { pointer-events: none; }
+
+/* ══ 配色編輯面板(按 E;僅佈展調色用,kiosk 播放時不出現)═══════════════════ */
+body.editing { cursor: auto; }
+body.editing .tuner input { cursor: pointer; }
+.tuner {
+  position: fixed; top: 16px; right: 16px; z-index: 10000;
+  width: 330px; max-height: calc(100vh - 32px);
+  display: flex; flex-direction: column;
+  background: rgba(8, 14, 34, 0.94);
+  border: 1px solid rgba(140, 180, 255, 0.28);
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  font-family: var(--font-hud); color: #dbe7ff;
+  backdrop-filter: blur(8px);
+  user-select: none;
+}
+.tuner__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 11px 13px; border-bottom: 1px solid rgba(140, 180, 255, 0.18);
+  font-size: 13px; letter-spacing: 0.06em;
+  cursor: grab;   /* 拖標題列可搬動面板 */
+}
+.tuner__head:active { cursor: grabbing; }
+.tuner__head span { font-size: 11px; opacity: 0.55; }
+.tuner__list { overflow-y: auto; padding: 8px 13px 4px; }
+.tuner__row { padding: 7px 0; border-bottom: 1px solid rgba(140, 180, 255, 0.1); }
+.tuner__row:last-child { border-bottom: 0; }
+.tuner__top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.tuner__top input[type='color'] {
+  width: 26px; height: 22px; padding: 0; flex: none;
+  background: none; border: 1px solid rgba(160,195,255,0.35); border-radius: 4px;
+}
+.tuner__label { flex: 1; font-size: 12px; letter-spacing: 0.02em; }
+.tuner__hex {
+  width: 74px; flex: none; padding: 3px 5px;
+  background: rgba(255,255,255,0.06); color: #cfe0ff;
+  border: 1px solid rgba(160,195,255,0.22); border-radius: 4px;
+  font-family: var(--font-hud); font-size: 11px; text-align: center;
+}
+.tuner__group {
+  margin: 6px 0 2px; padding-top: 4px;
+  font-size: 11px; letter-spacing: 0.14em; opacity: 0.5; text-transform: uppercase;
+}
+.tuner__tip { margin: 0 0 6px; font-size: 11px; line-height: 1.5; opacity: 0.6; }
+.tuner__tip b { color: #9fd4ff; font-weight: 600; }
+.tuner .tuner__sl--geo { height: 26px; }
+.tuner .tuner__sl--geo i { width: 104px; flex: none; font-size: 11px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tuner .tuner__sl--geo u { width: 46px; flex: none; }
+.tuner__sl { display: flex; align-items: center; gap: 7px; height: 17px; }
+.tuner__sl i { width: 10px; flex: none; font-style: normal; font-size: 10px; opacity: 0.55; }
+.tuner__sl u { width: 26px; text-align: right; font-size: 10px; opacity: 0.6; text-decoration: none; }
+.tuner__sl input[type='range'] { flex: 1; height: 3px; accent-color: #6fb4ff; }
+.tuner__foot { display: flex; gap: 8px; padding: 10px 13px; border-top: 1px solid rgba(140,180,255,0.18); }
+.tuner__foot button {
+  flex: 1; padding: 7px 0;
+  background: rgba(90, 150, 255, 0.16); color: #dbe7ff;
+  border: 1px solid rgba(140, 180, 255, 0.3); border-radius: 6px;
+  font-family: var(--font-hud); font-size: 12px; cursor: pointer;
+}
+.tuner__foot button:hover { background: rgba(90, 150, 255, 0.28); }
 
 /* ══ Intro / Outro (AI 聲紋) ═══════════════════════════════════════════════════ */
 .intro, .outro {
@@ -188,11 +264,11 @@ body {
   text-transform: uppercase;
 }
 /* 前言(第二畫面)的「AI 聲紋」字樣改白 */
-.intro__eyebrow { color: #fff; text-shadow: 0 1px 10px rgba(11,28,60,0.4); }
+.intro__eyebrow, .outro__eyebrow { color: var(--idle-title); text-shadow: 0 1px 10px rgba(11,28,60,0.4); }
 .intro__line {
   font-size: clamp(22px, 3.6vh, 44px); font-weight: 500; line-height: 1.6;
   letter-spacing: 0.04em; max-width: 24ch;
-  color: color-mix(in srgb, var(--accent) 16%, var(--c-text));
+  color: var(--idle-title);
 }
 /* 倒數時的深色遮罩(蓋滿全螢幕,只在 3/2/1 淡入)*/
 .intro__dim {
@@ -205,7 +281,7 @@ body {
   position: absolute; inset: 0; margin: auto;
   width: fit-content; height: fit-content;
   font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(160px, 36vh, 420px); color: #fff;
+  font-size: clamp(160px, 36vh, 420px); color: var(--idle-title);
   /* 白色數字 + 底光(光從下方往外散)*/
   text-shadow:
     0 0 24px rgba(255,255,255,0.3),
@@ -213,11 +289,12 @@ body {
     0 42px 100px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 .outro__line {
+  color: var(--idle-title);
   font-weight: 700; font-size: clamp(34px, 6vh, 76px); letter-spacing: 0.06em;
   text-shadow: 0 0 40px var(--accent-glow);
 }
 .outro__sub {
-  font-size: clamp(12px, 1.8vh, 20px); letter-spacing: 0.24em; color: #fff;
+  font-size: clamp(12px, 1.8vh, 20px); letter-spacing: 0.24em; color: var(--idle-title);
   text-shadow: 0 1px 10px rgba(11,28,60,0.4);
 }
 

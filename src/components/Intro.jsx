@@ -31,7 +31,7 @@ export default function Intro() {
       />
       <p className="intro__eyebrow">AI 聲紋 · VOICEPRINT</p>
 
-      <Voiceprint accent="#ffffff" />
+      <Voiceprint accent="var(--idle-title)" />
 
       <motion.p
         className="intro__line"

@@ -68,6 +68,7 @@ const MAP = {
   card: CardIcon, keyring: KeyringIcon, nfc: NfcWaves, check: CheckIcon,
   bolt: Bolt, heart: Heart, shield: Shield, gauge: Gauge, leaf: Leaf,
 }
+// 五個情境角色的圖標不在這裡:改用設計端的 CI 圖檔,見 components/PersonaIcon.jsx
 
 export default function Icon({ name, ...p }) {
   const C = MAP[name] || Light

@@ -1,7 +1,8 @@
-import { useEffect, useReducer, useCallback } from 'react'
+import { useEffect, useReducer, useCallback, useSyncExternalStore } from 'react'
 import { motion } from 'framer-motion'
 import { PERSONAS, PERSONA_ORDER } from './personas.js'
 import { useNfcSocket } from './useNfcSocket.js'
+import { getSceneColors, subscribeSceneColors, setEditContext, slotColor, fillColor } from './sceneColorStore.js'
 
 import Idle from './components/Idle.jsx'
 import Intro from './components/Intro.jsx'
@@ -9,6 +10,8 @@ import PlacePrompt from './components/PlacePrompt.jsx'
 import Outro from './components/Outro.jsx'
 import ConfirmRipple from './components/ConfirmRipple.jsx'
 import StatusDot from './components/StatusDot.jsx'
+import StyleTuner from './components/StyleTuner.jsx'
+import IdleBeam from './components/IdleBeam.jsx'
 // 情境展演(房屋即時資訊 + 5 情境解方)改為 bento 動態資料牆;房子那格為 three.js。
 import HouseInfoBento from './bento/HouseInfoBento.jsx'
 import SceneBento from './bento/SceneBento.jsx'
@@ -137,6 +140,8 @@ export default function App() {
   useEffect(() => {
     const relay = (obj) => { if (!send(obj)) onMessage(obj) }
     const onKey = (e) => {
+      // 在配色面板(E)的輸入框裡打字時,不要觸發流程快捷鍵
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return
       const k = e.key
       if (k === 'i' || k === 'I' || k === 'Enter')      relay({ type: 'intro' })
       else if (k === 'n' || k === 'N' || k === 'ArrowRight') dispatch({ type: 'op-advance' })
@@ -150,15 +155,36 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [onMessage, send])
 
+  // 編輯模式挑過的參考配色(沒挑過就用 personas.js 的預設)
+  const sceneSel = useSyncExternalStore(subscribeSceneColors, getSceneColors)
   const persona = s.character ? PERSONAS[s.character] : null
+  const inScene = s.phase === 'scene' || s.phase === 'loop'
+  // 告訴編輯面板現在在哪一頁 → 面板只顯示該頁能編輯的項目
+  useEffect(() => { setEditContext(s.phase, inScene ? s.character : null) }, [s.phase, inScene, s.character])
   // 場景 / loop 用 persona 主色;其餘畫面回到品牌 teal。
   const accent = (s.phase === 'scene' || s.phase === 'loop') && persona ? persona.accent : null
 
   const screen = renderScreen(s, persona, dispatch)
 
   return (
-    <div className={`stage stage--${s.phase}`} style={accent ? { '--scene-accent': accent } : undefined}>
+    <div
+      className={`stage stage--${s.phase}`}
+      style={accent ? {
+        '--scene-accent': accent,
+        // 數據強調色 + 六塊面板各自的平塗色(null → 半透明白)
+        '--scene-accent-2': slotColor(persona, 'data') || persona.accent2,
+        '--fill-pain':     fillColor(slotColor(persona, 'pain')),
+        '--fill-solution': fillColor(slotColor(persona, 'solution')),
+        '--fill-score':    fillColor(slotColor(persona, 'score')),
+        '--fill-l1':       fillColor(slotColor(persona, 'l1')),
+        '--fill-l2':       fillColor(slotColor(persona, 'l2')),
+        '--fill-l3':       fillColor(slotColor(persona, 'l3')),
+      } : undefined}
+    >
       <div className="stage__vignette" />
+
+      {/* 待機頁光束:SVG 帶狀路徑(編輯模式可直接拖三個造型點)*/}
+      {s.phase === 'idle' && <IdleBeam />}
 
       {/* 不用 AnimatePresence:待機 / 前言 / 聲音 EQ 等畫面含 repeat:Infinity 動畫,
           會讓 AnimatePresence 的 exit 永遠不 settle → 卡在舊畫面(SensorRing 註解的雷)。
@@ -184,6 +210,9 @@ export default function App() {
       )}
 
       <StatusDot wsStatus={s.wsStatus} connected={s.connected} phase={s.phase} />
+
+      {/* 佈展調色用:按 E 開關(關閉時完全不渲染,不影響 kiosk)*/}
+      <StyleTuner />
     </div>
   )
 }

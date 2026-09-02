@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import CountUp from './CountUp.jsx'
-import HouseCanvas from './HouseCanvas.jsx'
+import VideoTile from './VideoTile.jsx'
 import LineChartTile from './LineChartTile.jsx'
 import DonutTile from './DonutTile.jsx'
 import Icon from '../components/icons.jsx'
+import PersonaIcon from '../components/PersonaIcon.jsx'
+import LayoutEditor from '../components/LayoutEditor.jsx'
 import { DIMENSION_ORDER, DIMENSION_META, SCENES } from '../scenes.js'
 import { PERSONA_ORDER } from '../personas.js'
 
@@ -232,20 +234,29 @@ export default function SceneBento({ persona, mode = 'play', onComplete }) {
         </Reel>
       </div>
 
-      {/* 中欄:全健築指數(3D 房子格已移除)*/}
+      {/* 中欄:樣品屋影片(佔原本 3D 房子那格)+ 全健築指數 */}
       <div className="scene-col scene-col--m">
+        <VideoTile className="col-anchor col-anchor--house" delay={0.14} />
         <CardFace key={`s-${persona.id}`} card={scoreCard} enter={ENTER(0.2)} />
       </div>
 
       {/* 右欄:痛點(L1+L2)+ 解方論述。key=persona.id → 換角色重播進場 */}
       <div className="scene-col scene-col--r">
         <motion.div key={`h-${persona.id}`} className="tile tile--cream col-anchor col-anchor--hero" {...ENTER(0.08)}>
-          <p className="t-eyebrow">{persona.painShort}</p>
+          {/* 右上:情境卡正式名稱(大、白)+ 底下痛點短句 */}
+          <p className="hero__label">{persona.label}</p>
+          <p className="hero__short">{persona.painShort}</p>
           <span className="t-spacer" />
-          <p className="hero__q">{persona.painMedium}</p>
+          <div className="hero__row">
+            <p className="hero__q">{persona.painMedium}</p>
+            <PersonaIcon id={persona.id} className="hero__icon" />
+          </div>
         </motion.div>
         <Reel key={`n-${persona.id}`} pageKey={dim} enter={ENTER(0.26)}><CardFace card={narr} /></Reel>
       </div>
+
+      {/* 按 E 時疊上可拖的欄位分隔線(非編輯模式不渲染)*/}
+      <LayoutEditor />
     </div>
   )
 }

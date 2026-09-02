@@ -33,6 +33,18 @@ export default function Idle() {
       >
         請入座，將邀請卡放上感應區
       </motion.p>
+
+      {/* 商標:置中靠下。用 PNG 的 alpha 當遮罩、顏色由 CSS 漸層決定
+          → 不吃圖檔原本偏青的漸層,可直接對齊 #7ac3ff 色系。 */}
+      <motion.div
+        className="idle__logo"
+        role="img"
+        aria-label="ANLB inside"
+        style={{ '--logo-src': `url(${import.meta.env.BASE_URL}icons/anlb.png)` }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.95 }}
+        transition={{ duration: 1.2, delay: 0.8 }}
+      />
     </div>
   )
 }
