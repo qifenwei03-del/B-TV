@@ -168,12 +168,21 @@ export default function StyleTuner() {
   if (!open) return null
 
   return (
-    <div className="tuner" style={{ left: pos.x, top: pos.y, right: 'auto' }} onKeyDown={(e) => e.stopPropagation()}>
+    <div
+      className="tuner"
+      // 面板被拖低時,高度上限要跟著扣掉 y,否則底部的按鈕列會掉到畫面外
+      style={{ left: pos.x, top: pos.y, right: 'auto', maxHeight: `calc(100vh - ${pos.y}px - 16px)` }}
+      onKeyDown={(e) => e.stopPropagation()}
+    >
       <div
         className="tuner__head"
         onPointerDown={(ev) => {
           const sx = ev.clientX - pos.x, sy = ev.clientY - pos.y
-          const move = (e) => setPos({ x: Math.max(0, e.clientX - sx), y: Math.max(0, e.clientY - sy) })
+          // 夾在畫面內:標題列永遠抓得到,面板也不會整個掉出去
+          const move = (e) => setPos({
+            x: Math.min(Math.max(0, e.clientX - sx), Math.max(0, window.innerWidth - 340)),
+            y: Math.min(Math.max(0, e.clientY - sy), Math.max(0, window.innerHeight - 120)),
+          })
           const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
           window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
         }}
