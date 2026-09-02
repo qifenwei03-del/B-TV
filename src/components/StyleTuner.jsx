@@ -23,7 +23,9 @@ const VARS = [
   { key: '--idle-sub',   label: '英文 SENSING…',       def: '#7ac3ff' },
   { key: '--idle-hint',  label: '小標 請入座…',        def: '#7ac3ff' },
 ]
-const LS_KEY = 'idleStyleTuner'
+// white 版用獨立的 key:舊的深色版調色值存在 localStorage,會在掛載時被寫回 :root 的
+// inline style,權重高過樣式表 → 換主題後畫面看起來「沒改」。分開存,兩版互不干擾。
+const LS_KEY = 'idleStyleTuner-white'
 
 // ── 光束幾何:形狀靠畫面上三個點直接拖,這裡只調寬度與光暈 ────────────────────
 const GEO = [
