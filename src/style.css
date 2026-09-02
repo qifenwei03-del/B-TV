@@ -628,3 +628,15 @@ body.editing .tuner input { cursor: pointer; }
     var(--idle-title, #1b3f8f) 62%,
     color-mix(in srgb, var(--idle-title, #1b3f8f) 88%, #08214f) 100%);
 }
+
+/* 情境鑰匙圈那頁:五列改成跟 1-5 一樣的平塗色塊 + 白字
+   平塗色用該角色的 accent 混 20% 暖灰(與 sceneColorStore 的 fillColor() 同一套算法),
+   原值亮度偏高,直接鋪白字會糊。 */
+.persona-list__item {
+  background: color-mix(in srgb, var(--p-accent) 80%, #4a4a30);
+  border: 0;
+  color: #ffffff;
+}
+.persona-list__no   { color: rgba(255,255,255,0.72); }
+.persona-list__q    { color: #ffffff; }
+.persona-list__name { color: rgba(255,255,255,0.78); }
