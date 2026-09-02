@@ -46,7 +46,7 @@ export default function HouseInfoBento() {
   return (
     <div className="bento">
       {/* hero(加高成 2 列;標題在格內置中留白,不貼底)*/}
-      <BentoTile color="cream" className={beam.hero ? 'tile--beam' : ''} style={{ gridColumn: '1 / 3', gridRow: '1 / 3', background: fill('hero') }}>
+      <BentoTile color="cream" className={`bento-hero${beam.hero ? ' tile--beam' : ''}`} style={{ gridColumn: '1 / 3', gridRow: '1 / 3', background: fill('hero') }}>
         <p className="t-eyebrow">寶舖 Sensor · 數位孿生平台</p>
         <span className="t-spacer" />
         <p className="t-label--lg t-label">這間房子的<br />即時健康資訊</p>

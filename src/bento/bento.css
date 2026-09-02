@@ -455,8 +455,9 @@
    要回深色版把這整段刪掉即可。
    ══════════════════════════════════════════════════════════════════════════════ */
 .bento {
-  /* 面板底色只在這裡改一個地方 */
-  --panel-fill: #a2d0f8;
+  /* 面板底色預設白;既有的兩塊色塊(左上標題卡 / 右下宣言卡)在下面單獨覆寫。
+     用覆寫變數而不是覆寫 background → 不必跟 .tile--beam 那條規則比權重。 */
+  --panel-fill: #ffffff;
   background:
     radial-gradient(120% 90% at 50% 4%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 46%),
     linear-gradient(158deg, #ffffff 0%, #eef5ff 45%, #dce9fb 100%);
@@ -467,6 +468,10 @@
   color: #17357a;
   text-shadow: none;
 }
+/* 既有的色塊:左上標題卡 + 右下宣言卡 → 淺藍 */
+.bento .bento-hero,
+.bento .bento-claim { --panel-fill: #a2d0f8; }
+
 /* 光邊格:漸層從面板內部移到「外面」——面板本身平塗白 + 一條藍邊,
    藍色漸層改成環在面板外圈(::after 負 inset + 模糊,z-index -1 疊在面板底下)。
    .tile 預設 overflow:hidden 會把外圈切掉 → 這裡改成 visible。 */
