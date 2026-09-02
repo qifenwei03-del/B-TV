@@ -40,8 +40,9 @@ export default function HouseInfoBento() {
   // 每格的平塗色(編輯模式直接輸入色碼;沒設就是半透明白)
   const picked = useSyncExternalStore(subscribeSceneColors, getBentoColors)
   const beam = useSyncExternalStore(subscribeSceneColors, getBentoBeam)
-  // 光帶格由 CSS 上底 → 不能再給 inline background(inline 會蓋掉)
-  const fill = (k) => (beam[k] ? undefined : fillColor(picked[k] || null))
+  // 沒指定色碼、或開了光邊 → 完全不給 inline background,交給 CSS 決定面板底色。
+  // (inline style 權重高過樣式表,之前的 fallback 值會把主題的面板色蓋掉。)
+  const fill = (k) => (beam[k] || !picked[k] ? undefined : fillColor(picked[k]))
   return (
     <div className="bento">
       {/* hero(加高成 2 列;標題在格內置中留白,不貼底)*/}

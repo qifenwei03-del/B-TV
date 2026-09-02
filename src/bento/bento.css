@@ -455,13 +455,15 @@
    要回深色版把這整段刪掉即可。
    ══════════════════════════════════════════════════════════════════════════════ */
 .bento {
+  /* 面板底色只在這裡改一個地方 */
+  --panel-fill: #a2d0f8;
   background:
     radial-gradient(120% 90% at 50% 4%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 46%),
     linear-gradient(158deg, #ffffff 0%, #eef5ff 45%, #dce9fb 100%);
 }
 /* 面板:白底藍字(平塗色塊系統不變,只是底色與字色翻過來) */
 .bento .tile:not(.tile--ink) {
-  background: #ffffff;
+  background: var(--panel-fill);
   color: #17357a;
   text-shadow: none;
 }
@@ -470,7 +472,7 @@
    .tile 預設 overflow:hidden 會把外圈切掉 → 這裡改成 visible。 */
 .bento .tile--beam:not(.tile--ink) {
   overflow: visible;
-  background: #ffffff;
+  background: var(--panel-fill);
   background-image: none;
   border-color: color-mix(in srgb, var(--beam-glow) 85%, #ffffff);
   box-shadow: none;
@@ -478,8 +480,8 @@
 }
 .bento .tile--beam:not(.tile--ink)::after {
   content: ''; position: absolute; z-index: -1; pointer-events: none;
-  inset: calc(-1 * clamp(10px, 1.3vw, 26px));
-  border-radius: clamp(24px, 2.7vw, 52px);
+  inset: calc(-1 * clamp(3px, 0.32vw, 6px));
+  border-radius: clamp(17px, 1.72vw, 32px);
   background: linear-gradient(168deg,
     color-mix(in srgb, var(--beam-glow) 72%, transparent) 0%,
     color-mix(in srgb, var(--beam-inner) 44%, transparent) 16%,
@@ -487,7 +489,7 @@
     transparent 58%,
     color-mix(in srgb, var(--beam-inner) 42%, transparent) 85%,
     color-mix(in srgb, var(--beam-glow) 64%, transparent) 100%);
-  filter: blur(clamp(6px, 0.7vw, 14px));
+  filter: blur(clamp(3px, 0.36vw, 7px));
 }
 /* 情境牆 1-5:只換底色(卡片、字色、配色邏輯都不動) */
 .scene-cols {
